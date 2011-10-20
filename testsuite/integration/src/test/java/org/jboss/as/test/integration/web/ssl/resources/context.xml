@@ -1,0 +1,3 @@
+<Context>
+	<Valve className="org.jboss.as.test.integration.web.ssl.security.JASPIAuthenticator" />
+</Context>
