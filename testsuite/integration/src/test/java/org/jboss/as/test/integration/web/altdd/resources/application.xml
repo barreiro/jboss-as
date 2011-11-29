@@ -9,6 +9,6 @@
             <context-root>/altdd-test</context-root>
         </web>
         <!-- Specify the ear relative path -->
-        <alt-dd>alt/altdd-web.xml</alt-dd>
+        <alt-dd>META-INF/altdd-web.xml</alt-dd>
     </module>
 </application>

@@ -39,6 +39,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.logging.Logger;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -61,8 +62,12 @@ public class CookieUnitTestCase {
 
     protected static final long fiveSeconds = 5000;
 
-    protected final String baseURL = "http://localhost:8080/jbosstest-cookie";
+    @ArquillianResource(CookieServlet.class)
+    protected URL cookieURL;
 
+    @ArquillianResource(CookieReadServlet.class)
+    protected URL cookieReadURL;
+    
     @Deployment(testable = false)
     public static WebArchive deployment() {
 
@@ -77,24 +82,20 @@ public class CookieUnitTestCase {
     @Test
     public void testCookieSetCorrectly() throws Exception {
         log.info("testCookieSetCorrectly()");
-        URL url = new URL(baseURL + "/CookieReadServlet");
-
         DefaultHttpClient httpclient = new DefaultHttpClient();
-        HttpResponse response = httpclient.execute(new HttpGet(url.toURI()));
+        HttpResponse response = httpclient.execute(new HttpGet(cookieReadURL.toURI() + "CookieReadServlet"));
         if (response.getEntity() != null)
             response.getEntity().getContent().close();
 
         log.info("Sending request with cookie");
-        response = httpclient.execute(new HttpPost(url.toURI()));
+        response = httpclient.execute(new HttpPost(cookieReadURL.toURI() + "CookieReadServlet"));
     }
 
     @Test
     public void testCookieRetrievedCorrectly() throws Exception {
         log.info("testCookieRetrievedCorrectly()");
-        URL url = new URL(baseURL + "/CookieServlet");
-
         DefaultHttpClient httpclient = new DefaultHttpClient();
-        HttpResponse response = httpclient.execute(new HttpGet(url.toURI()));
+        HttpResponse response = httpclient.execute(new HttpGet(cookieURL.toURI() + "CookieServlet"));
 
         // assert that we are able to hit servlet successfully
         int postStatusCode = response.getStatusLine().getStatusCode();

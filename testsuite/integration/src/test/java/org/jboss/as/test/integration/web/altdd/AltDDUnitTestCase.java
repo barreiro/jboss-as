@@ -34,6 +34,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.logging.Logger;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -53,11 +54,8 @@ public class AltDDUnitTestCase {
     
     private static Logger log = Logger.getLogger(AltDDUnitTestCase.class);
 
-    protected final String baseURL = "http://localhost:8080/" + getContextPath();
-
-    public String getContextPath() {
-        return "altdd-test";
-    }
+    @ArquillianResource
+    protected URL baseURL;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deployment() {

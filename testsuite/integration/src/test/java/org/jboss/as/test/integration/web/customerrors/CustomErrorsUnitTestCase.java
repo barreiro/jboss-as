@@ -33,6 +33,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.logging.Logger;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -51,8 +52,13 @@ public class CustomErrorsUnitTestCase {
 
     private static Logger log = Logger.getLogger(CustomErrorsUnitTestCase.class);
     
-    protected final String baseURL = "http://localhost:8080/error-producer";
-
+    @ArquillianResource(ErrorGeneratorServlet.class)
+    protected URL baseURL;
+    
+    private String getContextPath() {
+        return "error-producer";
+    }
+    
     @Deployment (name = "custom-errors.war", testable = false)
     public static WebArchive errorDeployment() {
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -91,7 +97,7 @@ public class CustomErrorsUnitTestCase {
     @Test
     public void test404Error() throws Exception {
         int errorCode = HttpURLConnection.HTTP_NOT_FOUND;
-        URL url = new URL(baseURL + "/ErrorGeneratorServlet?errorCode=" + errorCode);
+        URL url = new URL(baseURL + getContextPath() + "/ErrorGeneratorServlet?errorCode=" + errorCode);
 
         testURL(url, errorCode, "404.jsp", null);
     }
@@ -101,10 +107,10 @@ public class CustomErrorsUnitTestCase {
      *
      * @throws Exception
      */
-    @Test
+    @Test 
     public void test500Error() throws Exception {
         int errorCode = HttpURLConnection.HTTP_INTERNAL_ERROR;
-        URL url = new URL(baseURL + "/ErrorGeneratorServlet?errorCode=" + errorCode);
+        URL url = new URL(baseURL + getContextPath() + "/ErrorGeneratorServlet?errorCode=" + errorCode);
 
         testURL(url, errorCode, "500.jsp", null);
     }
@@ -116,7 +122,7 @@ public class CustomErrorsUnitTestCase {
      */
     @Test
     public void testExceptionError() throws Exception {
-        URL url = new URL(baseURL + "/ErrorGeneratorServlet");
+        URL url = new URL(baseURL + getContextPath() + "/ErrorGeneratorServlet");
 
         testURL(url, HttpURLConnection.HTTP_INTERNAL_ERROR, "500.jsp", "java.lang.IllegalStateException");
     }

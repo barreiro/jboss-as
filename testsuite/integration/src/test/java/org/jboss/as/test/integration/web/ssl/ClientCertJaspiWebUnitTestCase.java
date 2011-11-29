@@ -98,7 +98,6 @@ public class ClientCertJaspiWebUnitTestCase {
     private static String CERTIFICATE_KEY_FILE = "certificate-key-file";
     private static String CONNECTOR = "connector";
     private static String KEY_ALIAS = "key-alias";
-    //private static String NAME = "name";
     private static String PASSWORD = "password";
     private static String PROTOCOL = "protocol";
     private static String REDIRECT_PORT = "redirect-port";

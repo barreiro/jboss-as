@@ -34,6 +34,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.as.test.integration.web.classpath.util.Debug;
 import org.jboss.as.test.integration.web.classpath.util.Util;
 import org.jboss.as.test.integration.web.classpath.util2.Util2;
@@ -57,7 +58,8 @@ public class ClasspathUnitTestCase {
 
     private static Logger log = Logger.getLogger(ClasspathUnitTestCase.class);
     
-    protected final String baseURL = "http://localhost:8080/" + getContextPath();
+    @ArquillianResource
+    protected URL baseURL;
 
     public String getContextPath() {
         return "manifest";

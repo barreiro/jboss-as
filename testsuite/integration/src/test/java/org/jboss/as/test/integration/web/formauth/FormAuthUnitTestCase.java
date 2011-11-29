@@ -55,6 +55,7 @@ import org.apache.http.util.EntityUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.controller.client.OperationBuilder;
 import org.jboss.dmr.ModelNode;
@@ -78,11 +79,12 @@ public class FormAuthUnitTestCase {
 
     private static Logger log = Logger.getLogger(FormAuthUnitTestCase.class);
 
-    private String baseURLNoAuth = "http://localhost:" + Integer.getInteger("web.port", 8080) + "/";
+    @ArquillianResource
+    private URL baseURLNoAuth;
 
     DefaultHttpClient httpclient = new DefaultHttpClient();
 
-    @Deployment(testable = false)
+    @Deployment(name="form-auth.war", testable = false)
     public static WebArchive deployment() {
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         String resourcesLocation = "org/jboss/as/test/integration/web/formauth/resources/";
