@@ -114,6 +114,9 @@ public class UserInRoleUnitTestCase {
         war.addAsWebInfResource(tccl.getResource(resourcesLocation + "jboss-web.xml"), "jboss-web.xml");
         war.addClass(UserInRoleServlet.class);
 
+        war.addAsWebResource(tccl.getResource(resourcesLocation + "users0.properties"), "/WEB-INF/classes/users0.properties");
+        war.addAsWebResource(tccl.getResource(resourcesLocation + "roles0.properties"), "/WEB-INF/classes/roles0.properties");
+        
         // <war destfile="${build.lib}/userinrole1.war"
         // webxml="${build.resources}/web/userinrole/web1/web.xml">
         // <webinf dir="${build.resources}/web/userinrole/web1">
@@ -129,6 +132,9 @@ public class UserInRoleUnitTestCase {
         war1.addAsWebInfResource(tccl.getResource(resourcesLocation + "war1/jboss-web.xml"), "jboss-web.xml");
         war1.addAsWebResource(tccl.getResource(resourcesLocation + "war1/index.jsp"), "index.jsp");
 
+        war1.addAsWebResource(tccl.getResource(resourcesLocation + "war1/users1.properties"), "/WEB-INF/classes/users1.properties");
+        war1.addAsWebResource(tccl.getResource(resourcesLocation + "war1/roles1.properties"), "/WEB-INF/classes/roles1.properties");
+        
         // <war destfile="${build.lib}/userinrole2.war"
         // webxml="${build.resources}/web/userinrole/web2/web.xml">
         // <webinf dir="${build.resources}/web/userinrole/web2">
@@ -144,6 +150,9 @@ public class UserInRoleUnitTestCase {
         war2.addAsWebInfResource(tccl.getResource(resourcesLocation + "war2/jboss-web.xml"), "jboss-web.xml");
         war2.addAsWebResource(tccl.getResource(resourcesLocation + "war2/index.jsp"), "index.jsp");
 
+        war2.addAsWebResource(tccl.getResource(resourcesLocation + "war2/users2.properties"), "/WEB-INF/classes/users2.properties");
+        war2.addAsWebResource(tccl.getResource(resourcesLocation + "war2/roles2.properties"), "/WEB-INF/classes/roles2.properties");
+        
         // <zip destfile="${build.lib}/userinrole.ear">
         // <zipfileset dir="${build.resources}/web/userinrole"
         // prefix="META-INF">
@@ -194,24 +203,31 @@ public class UserInRoleUnitTestCase {
         op.get(OP_ADDR).add(SUBSYSTEM, "security");
         op.get(OP_ADDR).add(SECURITY_DOMAIN, "userinrole");
 
-        ModelNode xmlModule = new ModelNode();
-        xmlModule.get(CODE).set("org.jboss.security.auth.spi.XMLLoginModule");
-        xmlModule.get(FLAG).set("required");
+//        ModelNode xmlModule = new ModelNode();
+//        xmlModule.get(CODE).set("org.jboss.security.auth.spi.XMLLoginModule");
+//        xmlModule.get(FLAG).set("required");
+//        
+//        StringBuilder userInfo = new StringBuilder();
+//        userInfo.append("<ur:users xsi:schemaLocation=\"urn:jboss:user-roles:1.0 resource:user-roles_1_0.xsd\" xmlns:ur=\"urn:jboss:user-roles:1.0\">");
+//        userInfo.append("  <ur:user name=\"jduke\" password=\"theduke\">");
+//        userInfo.append("    <ur:role name=\"ServletUserRole\" />");
+//        userInfo.append("    <ur:role name=\"AnotherUserRole\" />");
+//        userInfo.append("    <ur:role name=\"AuthorizedUser\" />");
+//        userInfo.append("    <ur:role name=\"callerJduke\" group=\"CallerPrincipal\" />");
+//        userInfo.append("  </ur:user>");
+//        userInfo.append("</ur:users>");
+//        
+//        xmlModule.get(MODULE_OPTIONS).add("userInfo", userInfo.toString());
+//        xmlModule.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "guest");
         
-        StringBuilder userInfo = new StringBuilder();
-        userInfo.append("<ur:users xsi:schemaLocation=\"urn:jboss:user-roles:1.0 resource:user-roles_1_0.xsd\" xmlns:ur=\"urn:jboss:user-roles:1.0\">");
-        userInfo.append("  <ur:user name=\"jduke\" password=\"theduke\">");
-        userInfo.append("    <ur:role name=\"ServletUserRole\" />");
-        userInfo.append("    <ur:role name=\"AnotherUserRole\" />");
-        userInfo.append("    <ur:role name=\"AuthorizedUser\" />");
-        userInfo.append("    <ur:role name=\"callerJduke\" group=\"CallerPrincipal\" />");
-        userInfo.append("  </ur:user>");
-        userInfo.append("</ur:users>");
+        ModelNode rolesmodule = new ModelNode();
+        rolesmodule.get(CODE).set("org.jboss.security.auth.spi.UsersRolesLoginModule");
+        rolesmodule.get(FLAG).set("required");
+        rolesmodule.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "nobody");
+        rolesmodule.get(MODULE_OPTIONS).add("usersProperties", "users0.properties");
+        rolesmodule.get(MODULE_OPTIONS).add("rolesProperties", "roles0.properties");
         
-        xmlModule.get(MODULE_OPTIONS).add("userInfo", userInfo.toString());
-        xmlModule.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "guest");
-
-        op.get(AUTHENTICATION).set(Arrays.asList(xmlModule));
+        op.get(AUTHENTICATION).set(Arrays.asList(rolesmodule));
         updates.add(op);
 
         // ### userinrole1
@@ -221,22 +237,29 @@ public class UserInRoleUnitTestCase {
         op1.get(OP_ADDR).add(SUBSYSTEM, "security");
         op1.get(OP_ADDR).add(SECURITY_DOMAIN, "userinrole1");
 
-        ModelNode xmlModule1 = new ModelNode();
-        xmlModule1.get(CODE).set("org.jboss.security.auth.spi.XMLLoginModule");
-        xmlModule1.get(FLAG).set("required");
-        
-        StringBuilder userInfo1 = new StringBuilder();
-        userInfo1.append("<ur:users xsi:schemaLocation=\"urn:jboss:user-roles:1.0 resource:user-roles_1_0.xsd\" xmlns:ur=\"urn:jboss:user-roles:1.0\">");
-        userInfo1.append("  <ur:user name=\"sa\" password=\"sa\">");
-        userInfo1.append("    <ur:role name=\"X\" />");
-        userInfo1.append("    <ur:role name=\"Z\" />");
-        userInfo1.append("  </ur:user>");
-        userInfo1.append("</ur:users>");
-        
-        xmlModule1.get(MODULE_OPTIONS).add("userInfo", userInfo1.toString());
-        xmlModule1.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "guest");
+//        ModelNode xmlModule1 = new ModelNode();
+//        xmlModule1.get(CODE).set("org.jboss.security.auth.spi.XMLLoginModule");
+//        xmlModule1.get(FLAG).set("required");
+//        
+//        StringBuilder userInfo1 = new StringBuilder();
+//        userInfo1.append("<ur:users xsi:schemaLocation=\"urn:jboss:user-roles:1.0 resource:user-roles_1_0.xsd\" xmlns:ur=\"urn:jboss:user-roles:1.0\">");
+//        userInfo1.append("  <ur:user name=\"sa\" password=\"sa\">");
+//        userInfo1.append("    <ur:role name=\"X\" />");
+//        userInfo1.append("    <ur:role name=\"Z\" />");
+//        userInfo1.append("  </ur:user>");
+//        userInfo1.append("</ur:users>");
+//        
+//        xmlModule1.get(MODULE_OPTIONS).add("userInfo", userInfo1.toString());
+//        xmlModule1.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "guest");
 
-        op1.get(AUTHENTICATION).set(Arrays.asList(xmlModule1));
+        ModelNode rolesmodule1 = new ModelNode();
+        rolesmodule1.get(CODE).set("org.jboss.security.auth.spi.UsersRolesLoginModule");
+        rolesmodule1.get(FLAG).set("required");
+        rolesmodule1.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "nobody");
+        rolesmodule1.get(MODULE_OPTIONS).add("usersProperties", "users1.properties");
+        rolesmodule1.get(MODULE_OPTIONS).add("rolesProperties", "roles1.properties");
+        
+        op1.get(AUTHENTICATION).set(Arrays.asList(rolesmodule1));
         updates.add(op1);
 
         // ### userinrole2
@@ -246,22 +269,29 @@ public class UserInRoleUnitTestCase {
         op2.get(OP_ADDR).add(SUBSYSTEM, "security");
         op2.get(OP_ADDR).add(SECURITY_DOMAIN, "userinrole2");
 
-        ModelNode xmlModule2 = new ModelNode();
-        xmlModule2.get(CODE).set("org.jboss.security.auth.spi.XMLLoginModule");
-        xmlModule2.get(FLAG).set("required");
-        
-        StringBuilder userInfo2 = new StringBuilder();
-        userInfo2.append("<ur:users xsi:schemaLocation=\"urn:jboss:user-roles:1.0 resource:user-roles_1_0.xsd\" xmlns:ur=\"urn:jboss:user-roles:1.0\">");
-        userInfo2.append("  <ur:user name=\"sa\" password=\"sa\">");
-        userInfo2.append("    <ur:role name=\"Y\" />");
-        userInfo2.append("    <ur:role name=\"Z\" />");
-        userInfo2.append("  </ur:user>");
-        userInfo2.append("</ur:users>");
-        
-        xmlModule2.get(MODULE_OPTIONS).add("userInfo", userInfo2.toString());
-        xmlModule2.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "guest");
+//        ModelNode xmlModule2 = new ModelNode();
+//        xmlModule2.get(CODE).set("org.jboss.security.auth.spi.XMLLoginModule");
+//        xmlModule2.get(FLAG).set("required");
+//        
+//        StringBuilder userInfo2 = new StringBuilder();
+//        userInfo2.append("<ur:users xsi:schemaLocation=\"urn:jboss:user-roles:1.0 resource:user-roles_1_0.xsd\" xmlns:ur=\"urn:jboss:user-roles:1.0\">");
+//        userInfo2.append("  <ur:user name=\"sa\" password=\"sa\">");
+//        userInfo2.append("    <ur:role name=\"Y\" />");
+//        userInfo2.append("    <ur:role name=\"Z\" />");
+//        userInfo2.append("  </ur:user>");
+//        userInfo2.append("</ur:users>");
+//        
+//        xmlModule2.get(MODULE_OPTIONS).add("userInfo", userInfo2.toString());
+//        xmlModule2.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "guest");
 
-        op2.get(AUTHENTICATION).set(Arrays.asList(xmlModule2));
+        ModelNode rolesmodule2 = new ModelNode();
+        rolesmodule2.get(CODE).set("org.jboss.security.auth.spi.UsersRolesLoginModule");
+        rolesmodule2.get(FLAG).set("required");
+        rolesmodule2.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "nobody");
+        rolesmodule2.get(MODULE_OPTIONS).add("usersProperties", "users2.properties");
+        rolesmodule2.get(MODULE_OPTIONS).add("rolesProperties", "roles2.properties");
+        
+        op2.get(AUTHENTICATION).set(Arrays.asList(rolesmodule2));
         updates.add(op2);
         
         applyUpdates(updates, client);
@@ -296,8 +326,9 @@ public class UserInRoleUnitTestCase {
             log.info("+++ Update on " + client + ":\n" + update.toString());
             ModelNode result = client.execute(new OperationBuilder(update).build());
             if (result.hasDefined("outcome") && "success".equals(result.get("outcome").asString())) {
-                if (result.hasDefined("result"))
+                if (result.hasDefined("result")) {
                     log.info(result.get("result"));
+                }
             } else if (result.hasDefined("failure-description")) {
                 throw new RuntimeException(result.get("failure-description").toString());
             } else {
@@ -500,7 +531,7 @@ public class UserInRoleUnitTestCase {
 
     public static String getBaseURL(String username, String password, URL url) {
         String newURL = url.getProtocol() + "://" + username + ":" + password + "@" + url.getHost() + ":" + url.getPort() + "/";
-        log.debug("newURL for URL=" + url + ", user=" + username + ", password=" + password + "is [" + newURL + "]");
+        log.debug("newURL for URL=" + url + ", user=" + username + ", password=" + password + " is [" + newURL + "]");
         return newURL;
     }
 

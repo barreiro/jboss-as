@@ -21,12 +21,26 @@
  */
 package org.jboss.as.test.integration.web.webintegration;
 
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REMOVE;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
+import static org.jboss.as.security.Constants.AUTHENTICATION;
+import static org.jboss.as.security.Constants.CODE;
+import static org.jboss.as.security.Constants.FLAG;
+import static org.jboss.as.security.Constants.MODULE_OPTIONS;
+import static org.jboss.as.security.Constants.SECURITY_DOMAIN;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -46,8 +60,23 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.as.controller.client.ModelControllerClient;
+import org.jboss.as.controller.client.OperationBuilder;
+import org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSession;
+import org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSessionBean;
+import org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSessionHome;
+import org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSessionLocal;
+import org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSessionLocalHome;
+import org.jboss.as.test.integration.web.webintegration.servlets.SecureServlet;
+import org.jboss.as.test.integration.web.webintegration.servlets.SubjectServlet;
+import org.jboss.as.test.integration.web.webintegration.util.ClassInClasses;
+import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -81,7 +110,228 @@ public class WebIntegrationUnitTestCase {
 
     @Deployment(name = "jbosstest-web.ear", testable = false)
     public static EnterpriseArchive deployment() {
-        return null;
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        String resourcesLocation = "org/jboss/as/test/integration/web/webintegration/resources/";
+
+        try {
+            ModelControllerClient mcc = ModelControllerClient.Factory.create(InetAddress.getByName("localhost"), 9999);
+            createSecurityDomains(mcc);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        
+        // <jar destfile="${build.lib}/jbosstest-web-ejbs.jar">
+        // <fileset dir="${build.classes}">
+        // <patternset refid="jboss.test.util.ejb.set"/>
+        // <include name="org/jboss/test/web/interfaces/**"/>
+        // <include name="org/jboss/test/web/ejb/**"/>
+        // <include name="org/jboss/test/web/mock/**"/>
+        // </fileset>
+        // <fileset dir="${build.resources}/web">
+        // <include name="META-INF/ejb-jar.xml"/>
+        // <include name="META-INF/jboss.xml"/>
+        // <include name="users.properties"/>
+        // <include name="roles.properties"/>
+        // </fileset>
+        // </jar>
+
+        JavaArchive webEjbs = ShrinkWrap.create(JavaArchive.class, "jbosstest-web-ejbs.jar");
+
+        webEjbs.addAsResource(tccl.getResource(resourcesLocation + "ejb/users.properties"), "users.properties");
+        webEjbs.addAsResource(tccl.getResource(resourcesLocation + "ejb/roles.properties"), "roles.properties");
+
+        webEjbs.addAsManifestResource(tccl.getResource(resourcesLocation + "ejb/ejb-jar.xml"), "ejb-jar.xml");
+        webEjbs.addAsManifestResource(tccl.getResource(resourcesLocation + "ejb/jboss.xml"), "jboss.xml");
+
+        webEjbs.addPackage(StatelessSession.class.getPackage());
+
+        // <!-- build jbosstest-web.war -->
+        // <war warfile="${build.lib}/jbosstest-web.war"
+        // webxml="${build.resources}/web/WEB-INF/jbosstest-web.xml">
+        // <webinf dir="${build.resources}/web/WEB-INF">
+        // <include name="context.xml"/>
+        // </webinf>
+        // <webinf dir="${build.resources}/web/html/jbosstest/WEB-INF">
+        // <include name="*"/>
+        // </webinf>
+        // <lib dir="${build.lib}">
+        // <include name="jbosstest-web-libservlet.jar"/>
+        // <include name="jbosstest-web-util.jar"/>
+        // <include name="resources.jar"/>
+        // </lib>
+        // <classes dir="${build.classes}">
+        // <include name="org/jboss/test/web/servlets/**"/>
+        // <exclude name="org/jboss/test/web/servlets/lib/**"/>
+        // <include name="org/jboss/test/web/util/ClassInClasses.class"/>
+        // </classes>
+        // <fileset dir="${build.resources}/web/html/jbosstest">
+        // <include name="**/*.jsp"/>
+        // <include name="**/*.html"/>
+        // </fileset>
+        // </war>
+
+        WebArchive war = ShrinkWrap.create(WebArchive.class, "jbosstest-web.war");
+        war.setWebXML(tccl.getResource(resourcesLocation + "war/jbosstest-web.xml"));
+        war.addAsWebInfResource(tccl.getResource(resourcesLocation + "war/jboss-web.xml"), "jboss-web.xml");
+        war.addAsWebInfResource(tccl.getResource(resourcesLocation + "war/context.xml"), "context.xml");
+
+        war.addAsWebResource(tccl.getResource(resourcesLocation + "html/classpath.jsp"), "classpath.jsp");
+        war.addAsWebResource(tccl.getResource(resourcesLocation + "html/index.html"), "index.html");
+        war.addAsWebResource(tccl.getResource(resourcesLocation + "html/JBoss.properties"), "JBoss.properties");
+        war.addAsWebResource(tccl.getResource(resourcesLocation + "html/snoop.jsp"), "snoop.jsp");
+        
+        war.addPackage(SubjectServlet.class.getPackage());
+        war.addPackage(ClassInClasses.class.getPackage());
+
+//        <!-- build notjbosstest-web.war -->
+//        <mkdir dir="${build.lib}/wars"/>
+//        <war warfile="${build.lib}/wars/notjbosstest-web.war"
+//           webxml="${build.resources}/web/WEB-INF/notjbosstest-web.xml">
+//           <webinf dir="${build.resources}/web/html/other/WEB-INF">
+//              <include name="*"/>
+//           </webinf>
+//           <classes dir="${build.classes}">
+//              <include name="org/jboss/test/web/servlets/SecureServlet.class"/>
+//           </classes>
+//           <fileset dir="${build.resources}/web">
+//              <include name="*.properties"/>
+//           </fileset>
+//           <fileset dir="${build.resources}/web/html/other">
+//              <include name="**/*.html"/>
+//           </fileset>
+//        </war>
+
+        WebArchive notWar = ShrinkWrap.create(WebArchive.class, "wars/notjbosstest-web.war");
+        notWar.setWebXML(tccl.getResource(resourcesLocation + "war/notjbosstest-web.xml"));
+        notWar.addAsWebInfResource(tccl.getResource(resourcesLocation + "war/notjboss-web.xml"), "jboss-web.xml");
+
+        notWar.addAsResource(tccl.getResource(resourcesLocation + "war/users.properties"), "users.properties");
+        notWar.addAsResource(tccl.getResource(resourcesLocation + "war/roles.properties"), "roles.properties");
+        
+        notWar.addAsWebResource(tccl.getResource(resourcesLocation + "html/notindex.html"), "index.html");
+        notWar.addAsWebResource(tccl.getResource(resourcesLocation + "html/restricted/error.html"), "error.html");
+        notWar.addAsWebResource(tccl.getResource(resourcesLocation + "html/restricted/login.html"), "login.html");
+        
+        notWar.addClass(SecureServlet.class);
+        
+//        <!-- build websubdir/relative.jar -->
+//        <mkdir dir="${build.lib}/websubdir"/>
+//        <jar destfile="${build.lib}/websubdir/relative.jar">
+//           <fileset dir="${build.resources}/web/websubdir">
+//              <include name="**/*.xml"/>
+//           </fileset>
+//           <fileset dir="${build.classes}">
+//              <include name="org/jboss/test/web/ejb/StatelessSessionBean.class"/>
+//              <include name="org/jboss/test/web/interfaces/StatelessSession*.class"/>
+//           </fileset>
+//        </jar>
+
+        JavaArchive relative = ShrinkWrap.create(JavaArchive.class, "websubdir/relative.jar");
+        relative.addAsManifestResource(tccl.getResource(resourcesLocation + "subdir/ejb-jar.xml"), "ejb-jar.xml");
+
+        relative.addClass(StatelessSessionBean.class);
+        relative.addClass(StatelessSession.class);
+        relative.addClass(StatelessSessionHome.class);
+        relative.addClass(StatelessSessionLocal.class);
+        relative.addClass(StatelessSessionLocalHome.class);
+        
+        // <!-- build jbosstest-web.ear -->
+        // <ear earfile="${build.lib}/jbosstest-web.ear"
+        // appxml="${build.resources}/web/META-INF/application.xml">
+        // <metainf dir="${build.resources}/web/META-INF">
+        // <include name="jboss-app.xml"/>
+        // <include name="jboss-structure.xml"/>
+        // <include name="hornetq-jms.xml"/>
+        // </metainf>
+        // <fileset dir="${build.lib}">
+        // <include name="jbosstest-web-ejbs.jar"/>
+        // <include name="jbosstest-web.war"/>
+        // <include name="wars/notjbosstest-web.war"/>
+        // <include name="lib/util.jar"/>
+        // <include name="websubdir/relative.jar"/>
+        // </fileset>
+        // <fileset dir="${build.lib}">
+        // <include name="cts.jar"/>
+        // </fileset>
+        // <fileset dir="${build.resources}/web">
+        // <include name="scripts/*"/>
+        // </fileset>
+        // </ear>
+
+        EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "jbosstest-web.ear");
+        ear.setApplicationXML(tccl.getResource(resourcesLocation + "ear/application.xml"));
+        // ear.addAsApplicationResource(tccl.getResource(resourcesLocation + "ear/jboss-app.xml"), "jboss-app.xml");
+        ear.addAsApplicationResource(tccl.getResource(resourcesLocation + "ear/jboss-structure.xml"), "jboss-structure.xml");
+
+        ear.addAsModule(webEjbs);
+        ear.addAsModule(war);
+        //ear.addAsModule(notWar);
+        //ear.addAsModule(relative);
+
+        log.info(webEjbs.toString(true));
+        log.info(war.toString(true));
+        log.info(notWar.toString(true));
+        log.info(relative.toString(true));
+        log.info(ear.toString(true));
+        return ear;
+    }
+    
+    @AfterClass
+    public static void undeployment() {
+        try {
+            ModelControllerClient mcc = ModelControllerClient.Factory.create(InetAddress.getByName("localhost"), 9999);
+            removeSecurityDomains(mcc);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    private static void createSecurityDomains(ModelControllerClient client) throws Exception {
+        final List<ModelNode> updates = new ArrayList<ModelNode>();
+
+        ModelNode op = new ModelNode();
+        op.get(OP).set(ADD);
+        op.get(OP_ADDR).add(SUBSYSTEM, "security");
+        op.get(OP_ADDR).add(SECURITY_DOMAIN, "jbosstest-web");
+
+        ModelNode rolesmodule = new ModelNode();
+        rolesmodule.get(CODE).set("org.jboss.security.auth.spi.UsersRolesLoginModule");
+        rolesmodule.get(FLAG).set("required");
+        rolesmodule.get(MODULE_OPTIONS).add("unauthenticatedIdentity", "nobody");
+        rolesmodule.get(MODULE_OPTIONS).add("usersProperties", "users.properties");
+        rolesmodule.get(MODULE_OPTIONS).add("rolesProperties", "roles.properties");
+
+        op.get(AUTHENTICATION).set(Arrays.asList(rolesmodule));
+        updates.add(op);
+
+        applyUpdates(updates, client);
+    }
+
+    public static void removeSecurityDomains(final ModelControllerClient client) throws Exception {
+        final List<ModelNode> updates = new ArrayList<ModelNode>();
+
+        ModelNode op = new ModelNode();
+        op.get(OP).set(REMOVE);
+        op.get(OP_ADDR).add(SUBSYSTEM, "security");
+        op.get(OP_ADDR).add(SECURITY_DOMAIN, "jbosstest-web");
+        updates.add(op);
+
+        applyUpdates(updates, client);
+    }
+
+    public static void applyUpdates(final List<ModelNode> updates, final ModelControllerClient client) throws Exception {
+        for (ModelNode update : updates) {
+            log.info("+++ Update on " + client + ":\n" + update.toString());
+            ModelNode result = client.execute(new OperationBuilder(update).build());
+            if (result.hasDefined("outcome") && "success".equals(result.get("outcome").asString())) {
+                if (result.hasDefined("result"))
+                    log.info(result.get("result"));
+            } else if (result.hasDefined("failure-description")) {
+                throw new RuntimeException(result.get("failure-description").toString());
+            } else {
+                throw new RuntimeException("Operation not successful; outcome = " + result.get("outcome"));
+            }
+        }
     }
 
     /**
@@ -625,19 +875,19 @@ public class WebIntegrationUnitTestCase {
     private void deploy(String string) {
         log.error(" +++ trying deploy of " + string);
         // TODO Auto-generated method stub
-
+        throw new RuntimeException("Not implemented --- deploy()");
     }
 
     private void undeploy(String string) {
         log.error(" +++ trying undeploy of " + string);
         // TODO Auto-generated method stub
-
+        throw new RuntimeException("Not implemented --- undeploy()");
     }
 
     private String getServerHostForURL() {
         log.error(" +++ trying getServerHostForURL");
         // TODO Auto-generated method stub
-        return null;
+        throw new RuntimeException("Not implemented --- getServerHostForURL()");
     }
 
 }

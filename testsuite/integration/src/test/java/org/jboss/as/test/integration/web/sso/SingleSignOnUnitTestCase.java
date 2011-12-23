@@ -85,46 +85,14 @@ public class SingleSignOnUnitTestCase {
             log.error(e.getMessage(), e);
         }
         
-        // <Valve className="org.apache.catalina.authenticator.SingleSignOn" />
-        
-//        <war destfile="${build.lib}/sso-form-auth.war"
-//            webxml="${build.resources}/web/sso/war/web-form-auth.xml">
-//            <webinf dir="${build.resources}/web/sso/war">
-//               <include name="jboss-web.xml"/>
-//            </webinf>
-//            <classes dir="${build.classes}">
-//               <include name="org/jboss/test/web/servlets/EJBServlet.class"/>
-//               <include name="org/jboss/test/web/servlets/LogoutServlet.class"/>
-//               <include name="org/jboss/test/web/util/Util*"/>
-//            </classes>
-//            <fileset dir="${build.resources}/web/sso/war">
-//               <include name="**/*.html"/>
-//               <include name="**/*.jsp"/>
-//            </fileset>
-//         </war>
-
         WebArchive war1 = SingleSignOnUnitTestCase.createSsoWar("sso-form-auth1.war");
         WebArchive war2 = SingleSignOnUnitTestCase.createSsoWar("sso-form-auth2.war");
         WebArchive warNoA = SingleSignOnUnitTestCase.createSsoWar("sso-with-no-auth.war");
         
-        // Exclude jboss-web.xml so the war will not have an authenticator
+        // Use jboss-web-no-auth.xml so the war will not have an authenticator
         warNoA.delete(warNoA.get("WEB-INF/jboss-web.xml").getPath());
+        warNoA.addAsWebInfResource(tccl.getResource(resourcesLocation + "jboss-web-no-auth.xml"), "jboss-web.xml");
         
-//        <jar destfile="${build.lib}/jbosstest-web-ejbs.jar">
-//        <fileset dir="${build.classes}">
-//           <patternset refid="jboss.test.util.ejb.set"/>
-//           <include name="org/jboss/test/web/interfaces/**"/>
-//           <include name="org/jboss/test/web/ejb/**"/>
-//           <include name="org/jboss/test/web/mock/**"/>
-//        </fileset>
-//        <fileset dir="${build.resources}/web">
-//           <include name="META-INF/ejb-jar.xml"/>
-//           <include name="META-INF/jboss.xml"/>
-//           <include name="users.properties"/>
-//           <include name="roles.properties"/>
-//        </fileset>
-//     </jar>
-
         JavaArchive webEjbs = ShrinkWrap.create(JavaArchive.class, "jbosstest-web-ejbs.jar");
 
         webEjbs.addAsResource(tccl.getResource(resourcesLocation + "users.properties"), "users.properties");
@@ -134,21 +102,6 @@ public class SingleSignOnUnitTestCase {
         webEjbs.addAsManifestResource(tccl.getResource(resourcesLocation + "jboss.xml"), "jboss.xml");
         
         webEjbs.addPackage(StatelessSession.class.getPackage());
-        
-//        <ear earfile="${build.lib}/web-sso.ear"
-//            appxml="${build.resources}/web/sso/application.xml">
-//          <zipfileset dir="${build.resources}/web">
-//             <include name="users.properties"/>
-//             <include name="roles.properties"/>
-//          </zipfileset>
-//          <zipfileset dir="${build.lib}" includes="sso-form-auth.war"
-//             fullpath="sso-form-auth1.war"/>
-//          <zipfileset dir="${build.lib}" includes="sso-form-auth.war"
-//             fullpath="sso-form-auth2.war"/>
-//          <zipfileset dir="${build.lib}" includes="sso-with-no-auth.war"
-//             fullpath="sso-with-no-auth.war"/>
-//          <zipfileset dir="${build.lib}" includes="jbosstest-web-ejbs.jar"/>
-//       </ear>
 
         EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "web-sso.ear");
         ear.setApplicationXML(tccl.getResource(resourcesLocation + "application.xml"));       

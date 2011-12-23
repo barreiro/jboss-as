@@ -43,6 +43,7 @@ import org.junit.Test;
  */
 public class WebProgrammaticLoginTestCase {
 
+    @SuppressWarnings("unused")
     private static Logger log = Logger.getLogger(WebProgrammaticLoginTestCase.class);
 
     @ArquillianResource

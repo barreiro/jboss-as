@@ -39,7 +39,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertTrue;
-
 /**
  * This class tests a root context deployed as an EAR or a WAR.
  *
@@ -52,7 +51,6 @@ import static org.junit.Assert.assertTrue;
 public class RootContextEarUnitTestCase {
 
     private static Logger log = Logger.getLogger(RootContextEarUnitTestCase.class);
-
     static class RootContextEarUnitTestCaseSetup extends AbstractMgmtServerSetupTask {
 
         @Override
@@ -65,8 +63,6 @@ public class RootContextEarUnitTestCase {
             RootContextUtil.removeVirtualServer(managementClient.getControllerClient(), HOST);
         }
     }
-
-
     private static String HOST = "context-host";
 
     @Deployment(name = "root-web.ear", testable = false)

@@ -94,7 +94,7 @@ public class ClientCertJaspiWebUnitTestCase {
     private String baseHttpNoAuth = "http://localhost" + ":" + 8081 + "/";
     private String baseHttpsNoAuth = "https://localhost" + ":" + Integer.getInteger("secureweb.port", 8443) + "/";
 
-    // FIXME Duplicated from org.jboss.as.web.Constants.Constants
+    // FIXME Duplicated from org.jboss.as.web.Constants.Constants;
     private static String CERTIFICATE_KEY_FILE = "certificate-key-file";
     private static String CONNECTOR = "connector";
     private static String KEY_ALIAS = "key-alias";
