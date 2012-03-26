@@ -39,7 +39,6 @@ import static org.jboss.as.web.Constants.REDIRECT_PORT;
 import static org.jboss.as.web.Constants.SECURE;
 import static org.jboss.as.web.Constants.SCHEME;
 import static org.jboss.as.web.Constants.VERIFY_CLIENT;
-
 import static org.jboss.as.security.Constants.AUTH_MODULES;
 import static org.jboss.as.security.Constants.CODE;
 import static org.jboss.as.security.Constants.FLAG;
@@ -209,13 +208,13 @@ public class ClientCertJaspiWebUnitTestCase {
 
         // Truststore is not required on natives
         if (!ClientCertJaspiWebUnitTestCaseSetup.webNative) {
-            ModelNode tsOp = createOpNode("system-property=javax.net.ssl.trustStore", ADD);
-            tsOp.get(VALUE).set(serverkeystore.getPath());
-            updates.add(tsOp);
+        ModelNode tsOp = createOpNode("system-property=javax.net.ssl.trustStore", ADD);
+        tsOp.get(VALUE).set(serverkeystore.getPath());
+        updates.add(tsOp);
 
-            ModelNode tspOp = createOpNode("system-property=javax.net.ssl.trustStorePassword", ADD);
-            tspOp.get(VALUE).set("changeit");
-            updates.add(tspOp);
+        ModelNode tspOp = createOpNode("system-property=javax.net.ssl.trustStorePassword", ADD);
+        tspOp.get(VALUE).set("changeit");
+        updates.add(tspOp);
         }
 
         applyUpdates(updates, client);
