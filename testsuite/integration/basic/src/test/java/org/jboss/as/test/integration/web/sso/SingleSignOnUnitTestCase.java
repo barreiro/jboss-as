@@ -22,15 +22,16 @@
 package org.jboss.as.test.integration.web.sso;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DEPLOYMENT;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REMOVE;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
+import static org.jboss.as.test.integration.management.util.ModelUtil.createOpNode;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -42,6 +43,7 @@ import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.controller.client.OperationBuilder;
 import org.jboss.as.test.integration.management.base.AbstractMgmtServerSetupTask;
 import org.jboss.as.test.integration.web.sso.interfaces.StatelessSession;
+import org.jboss.as.test.shared.RetryTaskExecutor;
 import org.jboss.dmr.ModelNode;
 import org.jboss.logging.Logger;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -61,66 +63,39 @@ import org.junit.runner.RunWith;
 @RunAsClient
 @ServerSetup(SingleSignOnUnitTestCase.SingleSignOnUnitTestCaseSetup.class)
 public class SingleSignOnUnitTestCase {
-    
+
     private static Logger log = Logger.getLogger(SingleSignOnUnitTestCase.class);
 
     @ArquillianResource
     protected URL baseURLNoAuth;
-    
+
     static class SingleSignOnUnitTestCaseSetup extends AbstractMgmtServerSetupTask {
 
         @Override
         protected void doSetup(final ManagementClient managementClient) throws Exception {
             SingleSignOnUnitTestCase.addSso(managementClient.getControllerClient());
+            restartServer(managementClient.getControllerClient());
         }
 
         @Override
         public void tearDown(final ManagementClient managementClient, final String containerId) throws Exception {
-             SingleSignOnUnitTestCase.removeSso(managementClient.getControllerClient());
+            SingleSignOnUnitTestCase.removeSso(managementClient.getControllerClient());
         }
     }
-    
-    // FIXME Duplicated from org.jboss.as.web.Constants.Constants
-    private static String VIRTUAL_SERVER = "virtual-server";
-    private static String SSO = "sso";
 
     public static void addSso(ModelControllerClient client) throws Exception {
-        final List<ModelNode> updates = new ArrayList<ModelNode>(); 
+        final List<ModelNode> updates = new ArrayList<ModelNode>();
 
-        ModelNode op = new ModelNode();
-        op.get(OP).set(ADD);
-        op.get(OP_ADDR).add(SUBSYSTEM, "web");
-        op.get(OP_ADDR).add(VIRTUAL_SERVER, "default-host");
-        op.get(OP_ADDR).add(SSO, "sso-configuration");
-//        updates.add(op);
+        // SSO element name must be 'configuration'
+        updates.add(createOpNode("subsystem=web/virtual-server=default-host/sso=configuration", ADD));
 
-//        ModelNode rop = new ModelNode();
-//        rop.get(OP).set("reload");
-//        updates.add(rop);
-        
         applyUpdates(updates, client);
     }
 
     public static void removeSso(final ModelControllerClient client) throws Exception {
         final List<ModelNode> updates = new ArrayList<ModelNode>();
 
-        ModelNode op = new ModelNode();
-        op.get(OP).set(REMOVE);
-        op.get(OP_ADDR).add(SUBSYSTEM, "web");
-        op.get(OP_ADDR).add(VIRTUAL_SERVER, "default-host");
-        op.get(OP_ADDR).add(SSO, "configuration");
-        updates.add(op);
-
-        applyUpdates(updates, client);
-    }
-
-    public static void undeploy(final ModelControllerClient client, String deploymentName) throws Exception {
-        final List<ModelNode> updates = new ArrayList<ModelNode>();
-
-        ModelNode op = new ModelNode();
-        op.get(OP).set(REMOVE);
-        op.get(OP_ADDR).add(DEPLOYMENT, deploymentName);
-        updates.add(op);
+        updates.add(createOpNode("subsystem=web/virtual-server=default-host/sso=configuration", REMOVE));
 
         applyUpdates(updates, client);
     }
@@ -139,7 +114,36 @@ public class SingleSignOnUnitTestCase {
             }
         }
     }
-    
+
+    // Reload operation is not handled well by Arquillian
+    // See ARQ-791: JMX: Arquillian is unable to reconnect to JMX server if the connection is lost
+    private static void restartServer(final ModelControllerClient client) {
+        try {
+            applyUpdates(Arrays.asList(createOpNode(null, "reload")), client);
+        } catch (Exception e) {
+            throw new RuntimeException("Restart operation not successful. " + e.getMessage());
+        }
+        try {
+            RetryTaskExecutor<Boolean> rte = new RetryTaskExecutor<Boolean>();
+            rte.retryTask(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    ModelNode result = client.execute(new OperationBuilder(createOpNode(null, READ_RESOURCE_OPERATION)).build());
+                    if (result.hasDefined("outcome") && "success".equals(result.get("outcome").asString())) {
+                        if (result.hasDefined("result"))
+                            log.info(result.get("result"));
+                        return true;
+                    } else {
+                        log.info("Server is down.");
+                        throw new Exception("Connector not available.");
+                    }
+                }
+            });
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Timeout on restart operation. " + e.getMessage());
+        }
+        log.info("Server is up.");
+    }
+
     /**
      * One time setup for all SingleSignOnUnitTestCase unit tests
      */
@@ -147,14 +151,14 @@ public class SingleSignOnUnitTestCase {
     public static EnterpriseArchive deployment() {
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         String resourcesLocation = "org/jboss/as/test/integration/web/sso/resources/";
-        
+
         WebArchive war1 = SingleSignOnUnitTestCase.createSsoWar("sso-form-auth1.war");
         WebArchive war2 = SingleSignOnUnitTestCase.createSsoWar("sso-form-auth2.war");
         WebArchive war3 = SingleSignOnUnitTestCase.createSsoWar("sso-with-no-auth.war");
-        
-        // Use jboss-web-no-auth.xml so the war will not have an authenticator
+
+        // Remove jboss-web.xml so the war will not have an authenticator
         war3.delete(war3.get("WEB-INF/jboss-web.xml").getPath());
-        
+
         JavaArchive webEjbs = ShrinkWrap.create(JavaArchive.class, "jbosstest-web-ejbs.jar");
         webEjbs.addAsManifestResource(tccl.getResource(resourcesLocation + "ejb-jar.xml"), "ejb-jar.xml");
         webEjbs.addAsManifestResource(tccl.getResource(resourcesLocation + "jboss.xml"), "jboss.xml");
@@ -162,7 +166,7 @@ public class SingleSignOnUnitTestCase {
 
         EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class, "web-sso.ear");
         ear.setApplicationXML(tccl.getResource(resourcesLocation + "application.xml"));
-        
+
         ear.addAsModule(war1);
         ear.addAsModule(war2);
         ear.addAsModule(war3);
@@ -175,11 +179,11 @@ public class SingleSignOnUnitTestCase {
         log.info(ear.toString(true));
         return ear;
     }
-    
+
     private static WebArchive createSsoWar(String warName) {
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         String resourcesLocation = "org/jboss/as/test/integration/web/sso/resources/";
-        
+
         WebArchive war = ShrinkWrap.create(WebArchive.class, warName);
         war.setWebXML(tccl.getResource(resourcesLocation + "web-form-auth.xml"));
         war.addAsWebInfResource(tccl.getResource(resourcesLocation + "jboss-web.xml"), "jboss-web.xml");
@@ -188,17 +192,15 @@ public class SingleSignOnUnitTestCase {
         war.addAsWebResource(tccl.getResource(resourcesLocation + "index.html"), "index.html");
         war.addAsWebResource(tccl.getResource(resourcesLocation + "index.jsp"), "index.jsp");
         war.addAsWebResource(tccl.getResource(resourcesLocation + "login.html"), "login.html");
-        
+
         war.addClass(EJBServlet.class);
         war.addClass(LogoutServlet.class);
-        
+
         return war;
     }
 
     /**
      * Test single sign-on across two web apps using form based auth
-     * 
-     * @throws Exception
      */
     @Test
     public void testFormAuthSingleSignOn() throws Exception {
@@ -208,8 +210,6 @@ public class SingleSignOnUnitTestCase {
 
     /**
      * Test single sign-on across two web apps using form based auth
-     * 
-     * @throws Exception
      */
     @Test
     public void testNoAuthSingleSignOn() throws Exception {
