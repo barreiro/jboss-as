@@ -38,10 +38,10 @@ import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.as.arquillian.api.ServerSetup;
+import org.jboss.as.arquillian.api.ServerSetupTask;
 import org.jboss.as.arquillian.container.ManagementClient;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.controller.client.OperationBuilder;
-import org.jboss.as.test.integration.management.base.AbstractMgmtServerSetupTask;
 import org.jboss.as.test.integration.web.sso.interfaces.StatelessSession;
 import org.jboss.as.test.shared.RetryTaskExecutor;
 import org.jboss.dmr.ModelNode;
@@ -69,15 +69,13 @@ public class SingleSignOnUnitTestCase {
     @ArquillianResource
     protected URL baseURLNoAuth;
 
-    static class SingleSignOnUnitTestCaseSetup extends AbstractMgmtServerSetupTask {
+    static class SingleSignOnUnitTestCaseSetup implements ServerSetupTask {
 
-        @Override
-        protected void doSetup(final ManagementClient managementClient) throws Exception {
+        public void setup(final ManagementClient managementClient, final String containerId) throws Exception {
             SingleSignOnUnitTestCase.addSso(managementClient.getControllerClient());
             restartServer(managementClient.getControllerClient());
         }
 
-        @Override
         public void tearDown(final ManagementClient managementClient, final String containerId) throws Exception {
             SingleSignOnUnitTestCase.removeSso(managementClient.getControllerClient());
         }
