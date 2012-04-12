@@ -30,5 +30,6 @@ import javax.ejb.EJBLocalHome;
  * @author Scott.Stark@jboss.org
  */
 public interface StatelessSessionLocalHome extends EJBLocalHome {
+    
     public StatelessSessionLocal create() throws CreateException;
 }

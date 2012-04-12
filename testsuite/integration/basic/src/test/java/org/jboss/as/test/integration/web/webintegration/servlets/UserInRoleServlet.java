@@ -31,8 +31,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.util.Strings;
-
 /**
  * A servlet that calls isUserInRole for every role name defined in the
  * expectedUserRoles init parameter and validates that each role is assigned to
@@ -63,9 +61,9 @@ public class UserInRoleServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         String param = config.getInitParameter("expectedUserRoles");
-        expectedUserRoles = Strings.split(param, ",");
+        expectedUserRoles = param.split(",");
         param = config.getInitParameter("unexpectedUserRoles");
-        unexpectedUserRoles = Strings.split(param, ",");
+        unexpectedUserRoles = param.split(",");
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException,

@@ -25,25 +25,10 @@ import java.rmi.RemoteException;
 
 import javax.ejb.EJBObject;
 
-/**
- * Interface CtsBmp
- */
 public interface CtsBmp extends EJBObject {
 
-    /**
-     * Method setPersonsName
-     * 
-     * @param personsName
-     * @throws RemoteException
-     */
     public void setPersonsName(String personsName) throws RemoteException;
 
-    /**
-     * Method getPersonsName
-     * 
-     * @return
-     * @throws RemoteException
-     */
     public String getPersonsName() throws RemoteException;
 
 }

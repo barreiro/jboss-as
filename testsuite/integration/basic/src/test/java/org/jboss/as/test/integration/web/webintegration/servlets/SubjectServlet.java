@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Principal;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -54,7 +54,7 @@ public class SubjectServlet extends HttpServlet {
             if (userSubject == null)
                 throw new ServletException("Active subject was null");
             response.addHeader("X-SubjectServlet", userSubject.toString());
-        } catch (NamingException e) {
+        } catch (PolicyContextException e) {
             throw new ServletException("Failed to lookup active subject", e);
         }
         response.setContentType("text/html");
@@ -81,9 +81,8 @@ public class SubjectServlet extends HttpServlet {
         processRequest(request, response);
     }
 
-    protected Subject getActiveSubject() throws NamingException {
-        InitialContext ctx = new InitialContext();
-        Subject s = (Subject) ctx.lookup("java:comp/env/security/subject");
+    protected Subject getActiveSubject() throws PolicyContextException {
+        Subject s = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
         return s;
     }
 }

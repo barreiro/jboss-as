@@ -88,7 +88,7 @@ public class ClientLoginServlet extends HttpServlet {
 
     private LoginContext doLogin(String username, String password) throws LoginException {
         UsernamePasswordHandler handler = new UsernamePasswordHandler(username, password.toCharArray());
-        LoginContext lc = new LoginContext("client-login", handler);
+        LoginContext lc = new LoginContext("jbosstest-domain", handler);
         lc.login();
         return lc;
     }

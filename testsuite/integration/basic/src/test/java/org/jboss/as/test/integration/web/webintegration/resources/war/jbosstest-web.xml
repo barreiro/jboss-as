@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-   http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+   http://java.sun.com/xml/ns/j2ee/web-app_2_5.xsd">
     <description>The WebApp Integration Tests Descriptor</description>
     <filter>
         <description>A filter that validates that is sees the authenticated subject</description>
@@ -39,10 +39,10 @@
         <servlet-name>EntityServlet</servlet-name>
         <servlet-class>org.jboss.as.test.integration.web.webintegration.servlets.EntityServlet</servlet-class>
     </servlet>
-    <!--servlet>
+    <servlet>
         <servlet-name>SecuredEntityFacadeServlet</servlet-name>
         <servlet-class>org.jboss.as.test.integration.web.webintegration.servlets.EntityFacadeServlet</servlet-class>
-    </servlet-->
+    </servlet>
     <servlet>
         <servlet-name>StatefulSessionServlet</servlet-name>
         <servlet-class>org.jboss.as.test.integration.web.webintegration.servlets.StatefulSessionServlet</servlet-class>
@@ -183,10 +183,10 @@
         <servlet-name>APIServlet</servlet-name>
         <url-pattern>/APIServlet</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
+    <!--servlet-mapping>
         <servlet-name>ClasspathServlet</servlet-name>
         <url-pattern>/ClasspathServlet</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping-->
     <servlet-mapping>
         <servlet-name>ENCServlet</servlet-name>
         <url-pattern>/ENCServlet</url-pattern>
@@ -223,14 +223,14 @@
         <servlet-name>ClientLoginServlet</servlet-name>
         <url-pattern>/ClientLoginServlet</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
+    <!--servlet-mapping>
         <servlet-name>IncludeServlet</servlet-name>
         <url-pattern>/IncludeServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SecureIncludeServlet</servlet-name>
         <url-pattern>/restricted/IncludeServlet</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping-->
     <servlet-mapping>
         <servlet-name>SecureServlet</servlet-name>
         <url-pattern>/restricted/SecureServlet</url-pattern>
@@ -324,13 +324,13 @@
     <!-- JMS Message Destinations -->
     <resource-ref>
         <description>Default Queue</description>
-        <res-ref-name>queue/testQueue</res-ref-name>
+        <res-ref-name>TestQueue</res-ref-name>
         <res-type>javax.jms.Queue</res-type>
         <res-auth>Container</res-auth>
     </resource-ref>
     <resource-ref>
         <description>Default Topic</description>
-        <res-ref-name>topic/testTopic</res-ref-name>
+        <res-ref-name>TestTopic</res-ref-name>
         <res-type>javax.jms.Topic</res-type>
         <res-auth>Container</res-auth>
     </resource-ref>
@@ -341,12 +341,12 @@
         <res-type>java.net.URL</res-type>
         <res-auth>Container</res-auth>
     </resource-ref>
-    <resource-ref>
+    <!--resource-ref>
         <description>SomeWebSite HomePage</description>
         <res-ref-name>url/IndirectURL</res-ref-name>
         <res-type>java.net.URL</res-type>
         <res-auth>Container</res-auth>
-    </resource-ref>
+    </resource-ref-->
     <!-- ### Security -->
     <security-constraint>
         <web-resource-collection>
@@ -518,13 +518,13 @@
         <remote>org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSession</remote>
         <ejb-link>NotOptimizedEJB</ejb-link>
     </ejb-ref>
-    <!--ejb-ref>
+    <ejb-ref>
         <ejb-ref-name>ejb/CtsBmp</ejb-ref-name>
         <ejb-ref-type>Entity</ejb-ref-type>
-        <home>org.jboss.as.test.integration.web.webintegration.cts.CtsBmpHome</home>
-        <remote>org.jboss.as.test.integration.web.webintegration.cts.CtsBmp</remote>
+        <home>org.jboss.as.test.integration.web.webintegration.interfaces.CtsBmpHome</home>
+        <remote>org.jboss.as.test.integration.web.webintegration.interfaces.CtsBmp</remote>
         <ejb-link>BMPBean</ejb-link>
-    </ejb-ref-->
+    </ejb-ref>
     <ejb-ref>
         <ejb-ref-name>ejb/SecuredEJB</ejb-ref-name>
         <ejb-ref-type>Session</ejb-ref-type>
@@ -547,13 +547,13 @@
         <ejb-link>StatefulEJB</ejb-link>
     </ejb-ref>
     <!-- A relative ejb-ref -->
-    <ejb-ref>
+    <!--ejb-ref>
         <ejb-ref-name>ejb/RelativeBean</ejb-ref-name>
         <ejb-ref-type>Session</ejb-ref-type>
         <home>org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSessionHome</home>
         <remote>org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSession</remote>
         <ejb-link>websubdir/relative.jar#SessionBean</ejb-link>
-    </ejb-ref>
+    </ejb-ref-->
     <ejb-local-ref>
         <ejb-ref-name>ejb/local/bean0</ejb-ref-name>
         <ejb-ref-type>Session</ejb-ref-type>
@@ -590,13 +590,13 @@
         <ejb-link>SecuredEJB</ejb-link>
     </ejb-local-ref>
     <!-- A relative ejb-local-ref -->
-    <ejb-local-ref>
+    <!--ejb-local-ref>
         <ejb-ref-name>ejb/local/RelativeBean</ejb-ref-name>
         <ejb-ref-type>Session</ejb-ref-type>
         <local-home>org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSessionLocalHome</local-home>
         <local>org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSessionLocal</local>
         <ejb-link>websubdir/relative.jar#SessionBean</ejb-link>
-    </ejb-local-ref>
+    </ejb-local-ref-->
     <ejb-local-ref>
         <ejb-ref-name>ejb/UnsecureRunAsServletWithPrincipalNameTarget</ejb-ref-name>
         <ejb-ref-type>Session</ejb-ref-type>
@@ -616,14 +616,14 @@
         <message-destination-ref-name>mdr/ConsumesLink</message-destination-ref-name>
         <message-destination-type>javax.jms.Queue</message-destination-type>
         <message-destination-usage>Consumes</message-destination-usage>
-        <message-destination-link>TestQueue</message-destination-link>
+        <!--message-destination-link>java:/queue/testQueue</message-destination-link-->
     </message-destination-ref>
     <message-destination-ref>
         <description>produces using a link</description>
         <message-destination-ref-name>mdr/ProducesLink</message-destination-ref-name>
         <message-destination-type>javax.jms.Topic</message-destination-type>
         <message-destination-usage>Produces</message-destination-usage>
-        <message-destination-link>TestTopic</message-destination-link>
+        <!--message-destination-link>java:/topic/testTopic</message-destination-link-->
     </message-destination-ref>
     <message-destination-ref>
         <description>consumesproduces using a jndi name</description>

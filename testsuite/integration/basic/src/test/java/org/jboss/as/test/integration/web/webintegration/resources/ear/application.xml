@@ -3,27 +3,27 @@
 <application>
     <display-name>JBossTest Web Container Testsuite</display-name>
     <module>
+        <!-- The testsuite war -->
         <web>
-            <!-- The testsuite war -->
             <web-uri>jbosstest-web.war</web-uri>
             <context-root>/jbosstest</context-root>
         </web>
     </module>
-            <!-- Another war to test context-root matching -->
-    <!--module>
+    <!-- Another war to test context-root matching -->
+    <module>
         <web>
-            <web-uri>wars/notjbosstest-web.war</web-uri>
+            <web-uri>notjbosstest-web.war</web-uri>
             <context-root>/jbosstest-not</context-root>
         </web>
-    </module-->
+    </module>
     <module>
         <ejb>jbosstest-web-ejbs.jar</ejb>
     </module>
-    <!--module>
+    <module>
         <ejb>cts.jar</ejb>
-    </module-->
-        <!-- An ejb module in a subdirectory to check whether the resolving of 'ejb-link' elements of the form "subdir/some.jar#MyBean" works correctly. -->
-    <!--module>
-        <ejb>websubdir/relative.jar</ejb>
-    </module-->
+    </module>
+    <!-- An ejb module in a subdirectory to check whether the resolving of 'ejb-link' elements of the form "subdir/some.jar#MyBean" works correctly. -->
+    <!-- AS-2067 module>
+        <ejb>subdir/websubdir.relative.jar</ejb>
+        </module -->
 </application>

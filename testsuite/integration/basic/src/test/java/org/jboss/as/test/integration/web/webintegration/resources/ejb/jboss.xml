@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
 <jboss>
+    <security-domain>jbosstest-domain</security-domain>
     <enterprise-beans>
         <session>
             <ejb-name>SecuredEJB</ejb-name>
@@ -20,7 +21,7 @@
     <container-configurations>
         <container-configuration extends="Standard Stateless SessionBean">
             <container-name>Secure Stateless SessionBean</container-name>
-            <security-domain>java:/jaas/jbosstest-web</security-domain>
+            <security-domain>jbosstest-domain</security-domain>
         </container-configuration>
     </container-configurations>
 </jboss>

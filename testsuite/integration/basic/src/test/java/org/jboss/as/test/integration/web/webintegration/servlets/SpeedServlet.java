@@ -43,7 +43,7 @@ import org.jboss.as.test.integration.web.webintegration.interfaces.StatelessSess
 public class SpeedServlet extends HttpServlet {
 
     private static final long serialVersionUID = 5873821428068498412L;
-    
+
     public static final int REPEATS = 10;
     public static final int ITERATIONS = 100;
 
@@ -76,18 +76,21 @@ public class SpeedServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
+        boolean optimizedParameter = (request.getParameter("optimized") != null);
         long[] optimized = null;
         long[] notOptimized = null;
         try {
             InitialContext ctx = new InitialContext();
             Context enc = (Context) ctx.lookup("java:comp/env");
-            StatelessSessionHome home = (StatelessSessionHome) enc.lookup("ejb/OptimizedEJB");
-            StatelessSession bean = home.create();
-            optimized = runRemoteTest(bean, true);
-
-            home = (StatelessSessionHome) enc.lookup("ejb/NotOptimizedEJB");
-            bean = home.create();
-            notOptimized = runRemoteTest(bean, false);
+            if (optimizedParameter) {
+                StatelessSessionHome home = (StatelessSessionHome) enc.lookup("ejb/OptimizedEJB");
+                StatelessSession bean = home.create();
+                optimized = runRemoteTest(bean, true);
+            } else {
+                StatelessSessionHome home = (StatelessSessionHome) enc.lookup("ejb/NotOptimizedEJB");
+                StatelessSession bean = home.create();
+                notOptimized = runRemoteTest(bean, false);
+            }
         } catch (Exception e) {
             throw new ServletException("Failed to run speed tests", e);
         }
@@ -97,10 +100,13 @@ public class SpeedServlet extends HttpServlet {
         out.println("<head><title>SpeedServlet</title></head>");
         out.println("<body>");
         out.println("Number of invocations=" + ITERATIONS + " repeated " + REPEATS + " times.<br />");
-        out.println("<h2>ejb/OptimizedEJB</h2>");
-        displayResults(out, optimized);
-        out.println("<h2>ejb/NotOptimizedEJB</h2>");
-        displayResults(out, notOptimized);
+        if (optimizedParameter) {
+            out.println("<h2>ejb/OptimizedEJB</h2>");
+            displayResults(out, optimized);
+        } else {
+            out.println("<h2>ejb/NotOptimizedEJB</h2>");
+            displayResults(out, notOptimized);
+        }
         out.println("</body>");
         out.println("</html>");
         out.close();

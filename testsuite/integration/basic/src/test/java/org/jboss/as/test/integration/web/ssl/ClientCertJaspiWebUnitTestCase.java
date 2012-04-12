@@ -29,6 +29,17 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REA
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REMOVE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SOCKET_BINDING;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.VALUE;
+import static org.jboss.as.web.Constants.CA_CERTIFICATE_FILE;
+import static org.jboss.as.web.Constants.CERTIFICATE_KEY_FILE;
+import static org.jboss.as.web.Constants.CERTIFICATE_FILE;
+import static org.jboss.as.web.Constants.KEY_ALIAS;
+import static org.jboss.as.web.Constants.PASSWORD;
+import static org.jboss.as.web.Constants.PROTOCOL;
+import static org.jboss.as.web.Constants.REDIRECT_PORT;
+import static org.jboss.as.web.Constants.SECURE;
+import static org.jboss.as.web.Constants.SCHEME;
+import static org.jboss.as.web.Constants.VERIFY_CLIENT;
+
 import static org.jboss.as.security.Constants.AUTH_MODULES;
 import static org.jboss.as.security.Constants.CODE;
 import static org.jboss.as.security.Constants.FLAG;
@@ -68,10 +79,10 @@ import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.as.arquillian.api.ServerSetup;
+import org.jboss.as.arquillian.api.ServerSetupTask;
 import org.jboss.as.arquillian.container.ManagementClient;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.controller.client.OperationBuilder;
-import org.jboss.as.test.integration.management.base.AbstractMgmtServerSetupTask;
 import org.jboss.as.test.integration.web.ssl.security.JASPIAuthenticator;
 import org.jboss.as.test.shared.RetryTaskExecutor;
 import org.jboss.dmr.ModelNode;
@@ -103,13 +114,12 @@ public class ClientCertJaspiWebUnitTestCase {
     @ArquillianResource
     private URL baseUrl;
 
-    static class ClientCertJaspiWebUnitTestCaseSetup extends AbstractMgmtServerSetupTask {
+    static class ClientCertJaspiWebUnitTestCaseSetup implements ServerSetupTask {
 
         private static boolean webNative;
         private static int httpsPort;
 
-        @Override
-        protected void doSetup(final ManagementClient managementClient) throws Exception {
+        public void setup(final ManagementClient managementClient, final String containerId) throws Exception {
             webNative = getNative(managementClient.getControllerClient());
             httpsPort = getSocketBinding(managementClient.getControllerClient(), "https");
 
@@ -121,25 +131,12 @@ public class ClientCertJaspiWebUnitTestCase {
             ClientCertJaspiWebUnitTestCase.restartServer(managementClient.getControllerClient());
         }
 
-        @Override
         public void tearDown(final ManagementClient managementClient, final String containerId) throws Exception {
             ClientCertJaspiWebUnitTestCase.removeHttpsConnectors(managementClient.getControllerClient());
             ClientCertJaspiWebUnitTestCase.removeHttpRedirectConnectors(managementClient.getControllerClient());
             ClientCertJaspiWebUnitTestCase.removeSecurityDomains(managementClient.getControllerClient());
         }
     }
-
-    // FIXME Duplicated from org.jboss.as.web.Constants.Constants;
-    private static String CERTIFICATE_KEY_FILE = "certificate-key-file";
-    private static String CERTIFICATE_FILE = "certificate-file";
-    private static String CA_CERTIFICATE_FILE = "ca-certificate-file";
-    private static String KEY_ALIAS = "key-alias";
-    private static String PASSWORD = "password";
-    private static String PROTOCOL = "protocol";
-    private static String REDIRECT_PORT = "redirect-port";
-    private static String SECURE = "secure";
-    private static String SCHEME = "scheme";
-    private static String VERIFY_CLIENT = "verify-client";
 
     @Deployment(testable = false)
     public static WebArchive deployment() {
@@ -193,6 +190,7 @@ public class ClientCertJaspiWebUnitTestCase {
         jaspiStack.get(LOGIN_MODULES).set(Arrays.asList(certmodule, rolesmodule));
         updates.add(jaspiStack);
 
+        // The java keys are used to authenticate both whith natives and without
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         String resourcesLocation = "org/jboss/as/test/integration/web/ssl/resources/";
         URL authkeystore = tccl.getResource(resourcesLocation + "keystore/jsse.jks");
@@ -209,14 +207,15 @@ public class ClientCertJaspiWebUnitTestCase {
         jsse.get(VERIFY_CLIENT).set(true);
         updates.add(jsse);
 
+        // Truststore is not required on natives
         if (!ClientCertJaspiWebUnitTestCaseSetup.webNative) {
-        ModelNode tsOp = createOpNode("system-property=javax.net.ssl.trustStore", ADD);
-        tsOp.get(VALUE).set(serverkeystore.getPath());
-        updates.add(tsOp);
+            ModelNode tsOp = createOpNode("system-property=javax.net.ssl.trustStore", ADD);
+            tsOp.get(VALUE).set(serverkeystore.getPath());
+            updates.add(tsOp);
 
-        ModelNode tspOp = createOpNode("system-property=javax.net.ssl.trustStorePassword", ADD);
-        tspOp.get(VALUE).set("changeit");
-        updates.add(tspOp);
+            ModelNode tspOp = createOpNode("system-property=javax.net.ssl.trustStorePassword", ADD);
+            tspOp.get(VALUE).set("changeit");
+            updates.add(tspOp);
         }
 
         applyUpdates(updates, client);
@@ -319,6 +318,10 @@ public class ClientCertJaspiWebUnitTestCase {
         }
     }
 
+    /**
+     * Method to get the status of the native attribute of the web subsystem.
+     * The configuration of HTTPS connector is different with/without natives.
+     */
     public static boolean getNative(final ModelControllerClient client) throws Exception {
         ModelNode op = createOpNode("subsystem=web", READ_ATTRIBUTE_OPERATION);
         op.get(NAME).set("native");
@@ -337,6 +340,10 @@ public class ClientCertJaspiWebUnitTestCase {
         }
     }
 
+    /**
+     * Method to fetch the port number for a given socket binding. In this test
+     * it's used to get the default HTTPS port to use in the redirect connector
+     */
     public static int getSocketBinding(final ModelControllerClient client, String binding) throws Exception {
         ModelNode op = createOpNode("socket-binding-group=standard-sockets/socket-binding=" + binding, READ_ATTRIBUTE_OPERATION);
         op.get(NAME).set("port");

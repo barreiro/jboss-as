@@ -24,8 +24,8 @@ package org.jboss.as.test.integration.web.webintegration.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Principal;
+
 import javax.naming.InitialContext;
-import javax.naming.Context;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -59,9 +59,7 @@ public class UnsecureEJBServlet extends HttpServlet {
 
         try {
             InitialContext ctx = new InitialContext();
-            StatelessSessionLocalHome home = null;
-            Context enc = (Context) ctx.lookup("java:comp/env");
-            home = (StatelessSessionLocalHome) enc.lookup("ejb/local/SecuredEJB");
+            StatelessSessionLocalHome home = (StatelessSessionLocalHome) ctx.lookup("java:comp/env/ejb/local/SecuredEJB");
             StatelessSessionLocal bean = home.create();
             if (method.equals("echo"))
                 bean.echo("UnsecureEJBServlet called SecuredEJB.echo");

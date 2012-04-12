@@ -22,35 +22,39 @@
 package org.jboss.as.test.integration.web.webintegration.servlets;
 
 import java.io.IOException;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletResponse;
-import javax.security.auth.Subject;
-import javax.naming.NamingException;
-import javax.naming.InitialContext;
 
-import org.jboss.security.SubjectSecurityManager;
+import org.jboss.security.AuthenticationManager;
 
 /**
  * @author Scott.Stark@jboss.org
  */
 public class SubjectFilter implements Filter {
-    public void init(FilterConfig filterConfig) throws ServletException {
 
+    public void init(FilterConfig filterConfig) throws ServletException {
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException,
             ServletException {
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
         try {
-            Subject userSubject = getActiveSubject(httpResponse);
+            Subject userSubject = getActiveSubject((HttpServletResponse) response);
             if (userSubject == null)
                 throw new ServletException("Active subject was null");
         } catch (NamingException e) {
+            throw new ServletException("Failed to lookup active subject", e);
+        } catch (PolicyContextException e) {
             throw new ServletException("Failed to lookup active subject", e);
         }
         filterChain.doFilter(request, response);
@@ -59,15 +63,20 @@ public class SubjectFilter implements Filter {
     public void destroy() {
     }
 
-    protected Subject getActiveSubject(HttpServletResponse httpResponse) throws NamingException {
+    protected Subject getActiveSubject(HttpServletResponse httpResponse) throws NamingException, PolicyContextException {
         InitialContext ctx = new InitialContext();
-        SubjectSecurityManager mgr = (SubjectSecurityManager) ctx.lookup("java:comp/env/security/securityMgr");
         
+        // ctx.lookup("java:comp/env/security/securityMgr");
+        AuthenticationManager mgr = (AuthenticationManager) ctx.lookup("java:jboss/jaas/jbosstest-context");
+
         @SuppressWarnings("deprecation")
         Subject s0 = mgr.getActiveSubject();
         httpResponse.addHeader("X-SubjectFilter-SubjectSecurityManager", s0.toString());
-        Subject s1 = (Subject) ctx.lookup("java:comp/env/security/subject");
+        
+        //Subject s1 = (Subject) ctx.lookup("java:comp/env/security/subject");
+        Subject s1 = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
         httpResponse.addHeader("X-SubjectFilter-ENC", s1.toString());
+
         return s1;
     }
 }

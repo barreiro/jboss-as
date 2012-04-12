@@ -29,7 +29,6 @@ import javax.ejb.SessionContext;
 
 import org.jboss.logging.Logger;
 
-
 /**
  * A simple session bean for testing declarative security.
  * 

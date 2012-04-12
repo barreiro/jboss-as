@@ -142,11 +142,10 @@ public class ENCServlet extends HttpServlet {
             throw new NamingException("ejb/bean2 is not a StatelessSessionHome");
         log.debug("ejb/bean2 = " + ejb);
         // do lookup on bean specified without ejb-link
-        ejb = initCtx.lookup("java:comp/env/ejb/bean3");
-        if ((ejb instanceof StatelessSessionHome) == false)
-            throw new NamingException("ejb/bean3 is not a StatelessSessionHome");
-        log.debug("ejb/bean3 = " + ejb);
-
+        // ejb = initCtx.lookup("java:comp/env/ejb/bean3");
+        // if ((ejb instanceof StatelessSessionHome) == false)
+        // throw new NamingException("ejb/bean3 is not a StatelessSessionHome");
+        // log.debug("ejb/bean3 = " + ejb);
         ejb = initCtx.lookup("java:comp/env/ejb/UnsecuredEJB");
         if ((ejb instanceof StatelessSessionHome) == false)
             throw new NamingException("ejb/UnsecuredEJB is not a StatelessSessionHome");
@@ -159,10 +158,11 @@ public class ENCServlet extends HttpServlet {
         if ((ejb instanceof CtsBmpHome) == false)
             throw new NamingException("ejb/CtsBmp is not a CtsBmpHome");
         log.debug("ejb/CtsBmp = " + ejb);
-        ejb = initCtx.lookup("java:comp/env/ejb/RelativeBean");
-        if ((ejb instanceof StatelessSessionHome) == false)
-            throw new NamingException("ejb/RelativeBean is not a StatelessSessionHome");
-        log.debug("ejb/RelativeBean = " + ejb);
+        // TODO AS-2067 ejb = initCtx.lookup("java:comp/env/ejb/RelativeBean");
+        // if ((ejb instanceof StatelessSessionHome) == false)
+        // throw new
+        // NamingException("ejb/RelativeBean is not a StatelessSessionHome");
+        // log.debug("ejb/RelativeBean = " + ejb);
 
         // EJB Local References
         ejb = initCtx.lookup("java:comp/env/ejb/local/bean0");
@@ -174,42 +174,41 @@ public class ENCServlet extends HttpServlet {
             throw new NamingException("ejb/local/bean1 is not a StatelessSessionLocalHome");
         log.debug("ejb/local/bean1 = " + ejb);
 
+        // lbarreiro: This lookup used a hook on microcontainer.
         // lookup of local-ejb-ref bean specified without ejb-link
-        ejb = initCtx.lookup("java:comp/env/ejb/local/bean3");
-        if ((ejb instanceof StatelessSessionLocalHome) == false)
-            throw new NamingException("ejb/local/bean3 is not a StatelessSessionLocalHome");
-        log.debug("ejb/local/bean3 = " + ejb);
+        // ejb = initCtx.lookup("java:comp/env/ejb/local/bean3");
+        // if ((ejb instanceof StatelessSessionLocalHome) == false)
+        // throw new
+        // NamingException("ejb/local/bean3 is not a StatelessSessionLocalHome");
+        // log.debug("ejb/local/bean3 = " + ejb);
 
         ejb = initCtx.lookup("java:comp/env/ejb/local/OptimizedEJB");
         if ((ejb instanceof StatelessSessionLocalHome) == false)
             throw new NamingException("ejb/local/OptimizedEJB is not a StatelessSessionLocalHome");
         log.debug("ejb/local/OptimizedEJB = " + ejb);
-        ejb = initCtx.lookup("java:comp/env/ejb/local/RelativeBean");
-        if ((ejb instanceof StatelessSessionLocalHome) == false)
-            throw new NamingException("ejb/local/RelativeBean is not a StatelessSessionLocalHome");
-        log.debug("ejb/local/RelativeBean = " + ejb);
+        // TODO AS-2067 ejb = initCtx.lookup("java:comp/env/ejb/local/RelativeBean");
+        // if ((ejb instanceof StatelessSessionLocalHome) == false)
+        // throw new
+        // NamingException("ejb/local/RelativeBean is not a StatelessSessionLocalHome");
+        // log.debug("ejb/local/RelativeBean = " + ejb);
     }
 
     private void testJdbcDataSource(Context initCtx, Context myEnv) throws NamingException {
-        // JDBC DataSource
         DataSource ds = (DataSource) myEnv.lookup("jdbc/DefaultDS");
         log.debug("jdbc/DefaultDS = " + ds);
     }
 
     private void testMail(Context initCtx, Context myEnv) throws NamingException {
-        // JavaMail Session
         Session session = (Session) myEnv.lookup("mail/DefaultMail");
         log.debug("mail/DefaultMail = " + session);
     }
 
     private void testJMS(Context initCtx, Context myEnv) throws NamingException {
-        // JavaMail Session
         QueueConnectionFactory qf = (QueueConnectionFactory) myEnv.lookup("jms/QueFactory");
         log.debug("jms/QueFactory = " + qf);
     }
 
     private void testURL(Context initCtx, Context myEnv) throws NamingException {
-        // URLs
         URL home1 = (URL) myEnv.lookup("url/JBossHome");
         log.debug("url/JBossHome = " + home1);
         URL home2 = (URL) initCtx.lookup("java:comp/env/url/JBossHome");

@@ -55,7 +55,7 @@
             <path name="websubdir/relative.jar" />
         </classpath>
     </context>
-    <context>
+    <!--context>
         <path name="scripts/security-config-service.xml" />
-    </context>
+    </context-->
 </structure>
