@@ -63,6 +63,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 @RunAsClient
+//@Ignore(value="ARQ-791 Arquillian is unable to reconnect to JMX server if the connection is lost")
 public class SingleSignOnUnitTestCase {
     
     private static Logger log = Logger.getLogger(SingleSignOnUnitTestCase.class);
