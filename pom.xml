@@ -119,6 +119,7 @@
         <version.gnu.getopt>1.0.13</version.gnu.getopt>
         <version.groovy-all>2.4.7</version.groovy-all>
         <version.httpunit>1.7.2</version.httpunit>
+        <version.io.agroal>0.1</version.io.agroal>
         <version.io.netty>4.1.9.Final</version.io.netty>
         <version.io.undertow.jastow>2.0.3.Final</version.io.undertow.jastow>
         <version.io.undertow.js>1.0.2.Final</version.io.undertow.js>
@@ -302,6 +303,7 @@
     </properties>
 
     <modules>
+        <module>agroal</module>
         <module>appclient</module>
         <module>batch-jberet</module>
         <module>bean-validation</module>
@@ -849,6 +851,12 @@
             </dependency>
 
             <!-- Modules in this project -->
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>wildfly-agroal</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -4864,6 +4872,18 @@
                 <artifactId>restat-util</artifactId>
                 <version>${version.org.jboss.narayana}</version>
              </dependency>
+
+            <dependency>
+                <groupId>io.agroal</groupId>
+                <artifactId>agroal-api</artifactId>
+                <version>${version.io.agroal}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.agroal</groupId>
+                <artifactId>agroal-pool</artifactId>
+                <version>${version.io.agroal}</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.netty</groupId>
