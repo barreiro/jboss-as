@@ -51,6 +51,7 @@
     </licenses>
 
     <modules>
+        <module>agroal</module>
         <module>appclient</module>
         <module>batch-jberet</module>
         <module>bean-validation</module>
