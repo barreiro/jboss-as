@@ -36,7 +36,7 @@ class AgroalSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
     private AgroalSubsystemAdd() {
     }
-    
+
     @Override
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
         // TODO:
