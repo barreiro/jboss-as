@@ -29,6 +29,8 @@ import org.jboss.as.controller.descriptions.StandardResourceDescriptionResolver;
 import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler;
 import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.wildfly.extension.agroal.definition.AgroalSubsystemDefinition;
+import org.wildfly.extension.agroal.parser.AgroalSubsystemParser_1_0;
 
 /**
  * Defines an extension to provide DataSources based on the Agroal project
@@ -43,9 +45,10 @@ public class AgroalExtension implements Extension {
     public static final String SUBSYSTEM_NAME = "agroal";
 
     private static final ModelVersion CURRENT_MODEL_VERSION = ModelVersion.create( 1, 0, 0 );
+
     private static final String RESOURCE_NAME = AgroalExtension.class.getPackage().getName() + ".LocalDescriptions";
 
-    static StandardResourceDescriptionResolver getResolver(final String... keyPrefix) {
+    public static StandardResourceDescriptionResolver getResolver(String... keyPrefix) {
         StringBuilder prefix = new StringBuilder( SUBSYSTEM_NAME );
         for ( String kp : keyPrefix ) {
             prefix.append( '.' ).append( kp );

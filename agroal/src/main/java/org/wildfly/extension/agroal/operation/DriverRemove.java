@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.agroal;
+package org.wildfly.extension.agroal.operation;
 
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
@@ -27,15 +27,15 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.dmr.ModelNode;
 
 /**
- * Handler responsible for removing the subsystem resource from the model
+ * Handler responsible for removing the driver resource from the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-class AgroalSubsystemRemove extends AbstractRemoveStepHandler {
+public class DriverRemove extends AbstractRemoveStepHandler {
 
-    static final AgroalSubsystemRemove INSTANCE = new AgroalSubsystemRemove();
+    public static final DriverRemove INSTANCE = new DriverRemove();
 
-    private AgroalSubsystemRemove() {
+    private DriverRemove() {
     }
 
     @Override

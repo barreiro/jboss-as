@@ -19,16 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.agroal;
+package org.wildfly.extension.agroal.definition;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
+import org.wildfly.extension.agroal.operation.AgroalSubsystemAdd;
+import org.wildfly.extension.agroal.operation.AgroalSubsystemRemove;
 
 import java.util.Collection;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.wildfly.extension.agroal.AgroalExtension.SUBSYSTEM_NAME;
 import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
@@ -40,26 +44,21 @@ import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
  */
 public class AgroalSubsystemDefinition extends PersistentResourceDefinition {
 
-    static final AgroalSubsystemDefinition INSTANCE = new AgroalSubsystemDefinition();
+    public static final AgroalSubsystemDefinition INSTANCE = new AgroalSubsystemDefinition();
 
-    private static final AttributeDefinition[] ATTRIBUTES = {
-            // TODO: add attributes, according to the schema
-    };
-    private static final PersistentResourceDefinition[] CHILDREN = {
-            // TODO: add elements, according to the schema
-    };
+    private static final List<PersistentResourceDefinition> CHILDREN = unmodifiableList( asList( DriverDefinition.INSTANCE ) );
 
     private AgroalSubsystemDefinition() {
-        super( PathElement.pathElement( SUBSYSTEM, SUBSYSTEM_NAME ), getResolver(), AgroalSubsystemAdd.INSTANCE, AgroalSubsystemRemove.INSTANCE );
+        super( pathElement( SUBSYSTEM, SUBSYSTEM_NAME ), getResolver(), AgroalSubsystemAdd.INSTANCE, AgroalSubsystemRemove.INSTANCE );
     }
 
     @Override
     public Collection<AttributeDefinition> getAttributes() {
-        return asList( ATTRIBUTES );
+        return emptyList();
     }
 
     @Override
     public List<? extends PersistentResourceDefinition> getChildren() {
-        return asList( CHILDREN );
+        return CHILDREN;
     }
 }

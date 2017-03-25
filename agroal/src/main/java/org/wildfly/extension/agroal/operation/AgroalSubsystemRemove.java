@@ -19,26 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.agroal;
+package org.wildfly.extension.agroal.operation;
 
-import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
+import org.jboss.as.controller.AbstractRemoveStepHandler;
+import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.dmr.ModelNode;
 
 /**
- * Handler responsible for adding the subsystem resource to the model
+ * Handler responsible for removing the subsystem resource from the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-class AgroalSubsystemAdd extends AbstractBoottimeAddStepHandler {
+public class AgroalSubsystemRemove extends AbstractRemoveStepHandler {
 
-    static final AgroalSubsystemAdd INSTANCE = new AgroalSubsystemAdd();
+    public static final AgroalSubsystemRemove INSTANCE = new AgroalSubsystemRemove();
 
-    private AgroalSubsystemAdd() {
+    private AgroalSubsystemRemove() {
     }
 
     @Override
-    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         // TODO:
     }
 }

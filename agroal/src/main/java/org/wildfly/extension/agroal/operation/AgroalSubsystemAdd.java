@@ -19,35 +19,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.agroal;
+package org.wildfly.extension.agroal.operation;
 
-import org.jboss.as.controller.PersistentResourceXMLDescription;
-import org.jboss.as.controller.PersistentResourceXMLParser;
-
-import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
+import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
+import org.jboss.as.controller.OperationFailedException;
+import org.jboss.dmr.ModelNode;
 
 /**
- * The subsystem parser, which uses STAX to read and write to and from xml
+ * Handler responsible for adding the subsystem resource to the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
+public class AgroalSubsystemAdd extends AbstractBoottimeAddStepHandler {
 
-    static final AgroalSubsystemParser_1_0 INSTANCE = new AgroalSubsystemParser_1_0();
+    public static final AgroalSubsystemAdd INSTANCE = new AgroalSubsystemAdd();
 
-    private static final PersistentResourceXMLDescription xmlDescription;
-
-    static {
-        xmlDescription = builder( AgroalSubsystemDefinition.INSTANCE.getPathElement(), Namespace.AGROAL_1_0.getUriString() )
-                // TODO: add elements, according to the schema
-                .build();
-    }
-
-    private AgroalSubsystemParser_1_0() {
+    private AgroalSubsystemAdd() {
     }
 
     @Override
-    public PersistentResourceXMLDescription getParserDescription() {
-        return xmlDescription;
+    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+        // TODO:
     }
 }

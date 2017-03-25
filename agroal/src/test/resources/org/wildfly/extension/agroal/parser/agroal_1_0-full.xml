@@ -1,0 +1,31 @@
+<subsystem xmlns="urn:jboss:domain:agroal:1.0">
+    <!--<datasource name="sample" jndi-name="java:jboss/datasources/ExampleDS" driver="h2" jta="true" connectable="true" statistics-enabled="false">-->
+        <!--<connection-pool initial-size="20" min-size="10" max-size="30" blocking-timeout-millis="1000">-->
+            <!--<background-validation millis="6000"/>-->
+            <!--<leak-detection millis="5000"/>-->
+            <!--<idle-removal minutes="5"/>-->
+        <!--</connection-pool>-->
+        <!--<connection-factory url="jdbc:h2:tcp://localhost:1701" transaction-isolation="TRANSACTION_REPEATABLE_READ" interrupt-protection="true" new-connection-sql="SELECT 1">-->
+            <!--<security username="sa" password="sa" />-->
+            <!--<connection-properties>-->
+                <!--<connection-property name="someProperty" value="someValue" />-->
+            <!--</connection-properties>-->
+        <!--</connection-factory>-->
+    <!--</datasource>-->
+    <!--<xa-datasource name="sample-xa" jndi-name="java:jboss/datasources/ExampleXADS" driver="h2" statistics-enabled="false">-->
+        <!--<connection-pool initial-size="5" min-size="1" max-size="10" blocking-timeout-millis="2000">-->
+            <!--<background-validation millis="8000"/>-->
+            <!--<leak-detection millis="7000"/>-->
+            <!--<idle-removal minutes="7"/>-->
+        <!--</connection-pool>-->
+        <!--<connection-factory url="jdbc:h2:tcp://localhost:1702" transaction-isolation="TRANSACTION_REPEATABLE_READ" interrupt-protection="true" new-connection-sql="SELECT 1">-->
+            <!--<security username="sa" password="sa" />-->
+            <!--<connection-properties>-->
+                <!--<connection-property name="anotherProperty" value="anotherValue" />-->
+            <!--</connection-properties>-->
+        <!--</connection-factory>-->
+    <!--</xa-datasource>-->
+    <drivers>
+        <driver name="h2" module="com.h2database.h2" slot="main" driver-class="org.h2.Driver" />
+    </drivers>
+</subsystem>
