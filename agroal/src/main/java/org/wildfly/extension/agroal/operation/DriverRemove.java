@@ -27,7 +27,7 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.dmr.ModelNode;
 
 /**
- * Handler responsible for removing the driver resource from the model
+ * Handler responsible for removing a driver resource from the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */

@@ -22,43 +22,37 @@
 package org.wildfly.extension.agroal.definition;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PersistentResourceDefinition;
-import org.wildfly.extension.agroal.operation.AgroalSubsystemAdd;
-import org.wildfly.extension.agroal.operation.AgroalSubsystemRemove;
+import org.wildfly.extension.agroal.operation.XaDatasourceAdd;
+import org.wildfly.extension.agroal.operation.XaDatasourceRemove;
 
 import java.util.Collection;
-import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static org.jboss.as.controller.PathElement.pathElement;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
-import static org.wildfly.extension.agroal.AgroalExtension.SUBSYSTEM_NAME;
 import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
 
 /**
- * Definition for the Agroal subsystem
+ * Definition for the xa-datasource resource
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class AgroalSubsystemDefinition extends PersistentResourceDefinition {
+public class XaDatasourceDefinition extends AbstractDatasourceDefinition {
 
-    public static final AgroalSubsystemDefinition INSTANCE = new AgroalSubsystemDefinition();
+    public static final XaDatasourceDefinition INSTANCE = new XaDatasourceDefinition();
 
-    private static final List<PersistentResourceDefinition> CHILDREN = unmodifiableList( asList( DatasourceDefinition.INSTANCE, XaDatasourceDefinition.INSTANCE, DriverDefinition.INSTANCE ) );
+    private static final String DATASOURCE_ELEMENT_NAME = "xa-datasource";
 
-    private AgroalSubsystemDefinition() {
-        super( pathElement( SUBSYSTEM, SUBSYSTEM_NAME ), getResolver(), AgroalSubsystemAdd.INSTANCE, AgroalSubsystemRemove.INSTANCE );
+    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JNDI_NAME_ATTRIBUTE, DRIVER_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE ) );
+
+    // --- //
+
+    private XaDatasourceDefinition() {
+        super( pathElement( DATASOURCE_ELEMENT_NAME ), getResolver( DATASOURCE_ELEMENT_NAME ), XaDatasourceAdd.INSTANCE, XaDatasourceRemove.INSTANCE );
     }
 
     @Override
     public Collection<AttributeDefinition> getAttributes() {
-        return emptyList();
-    }
-
-    @Override
-    public List<? extends PersistentResourceDefinition> getChildren() {
-        return CHILDREN;
+        return ATTRIBUTES;
     }
 }

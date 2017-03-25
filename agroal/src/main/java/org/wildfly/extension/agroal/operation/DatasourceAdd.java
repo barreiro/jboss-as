@@ -26,23 +26,23 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.dmr.ModelNode;
-import org.wildfly.extension.agroal.definition.DriverDefinition;
+import org.wildfly.extension.agroal.definition.DatasourceDefinition;
 
 /**
- * Handler responsible for adding a driver resource to the model
+ * Handler responsible for adding a datasource resource to the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DriverAdd extends AbstractAddStepHandler {
+public class DatasourceAdd extends AbstractAddStepHandler {
 
-    public static final DriverAdd INSTANCE = new DriverAdd();
+    public static final DatasourceAdd INSTANCE = new DatasourceAdd();
 
-    private DriverAdd() {
+    private DatasourceAdd() {
     }
 
     @Override
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for ( AttributeDefinition attributeDefinition : DriverDefinition.INSTANCE.getAttributes() ) {
+        for ( AttributeDefinition attributeDefinition : DatasourceDefinition.INSTANCE.getAttributes() ) {
             attributeDefinition.validateAndSet( operation, model );
         }
     }

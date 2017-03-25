@@ -55,12 +55,12 @@
     <xs:attributeGroup name="common-datasourceAttributes">
         <xs:attribute name="name" type="xs:token" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Specifies the name for the datasource (used for management) ]]></xs:documentation>
+                <xs:documentation><![CDATA[[ Name for the datasource (used for management) ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="jndi-name" type="xs:token" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Specifies the JNDI name for the datasource ]]></xs:documentation>
+                <xs:documentation><![CDATA[[ JNDI name for the datasource ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="driver" type="xs:token" use="required">

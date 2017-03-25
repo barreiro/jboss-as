@@ -25,7 +25,9 @@ import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.PersistentResourceXMLParser;
 import org.wildfly.extension.agroal.Namespace;
 import org.wildfly.extension.agroal.definition.AgroalSubsystemDefinition;
+import org.wildfly.extension.agroal.definition.DatasourceDefinition;
 import org.wildfly.extension.agroal.definition.DriverDefinition;
+import org.wildfly.extension.agroal.definition.XaDatasourceDefinition;
 
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
 
@@ -42,13 +44,23 @@ public class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
 
     static {
         XML_DESCRIPTION = builder( AgroalSubsystemDefinition.INSTANCE.getPathElement(), Namespace.AGROAL_1_0.getUriString() )
-                // TODO: add elements, according to the schema
-                .addChild(
-                        builder( DriverDefinition.INSTANCE.getPathElement() )
-                                .setXmlWrapperElement( DriverDefinition.DRIVERS_ELEMENT_NAME )
-                                .addAttribute( DriverDefinition.DRIVER_CLASS_ATTRIBUTE )
-                                .addAttribute( DriverDefinition.MODULE_ATTRIBUTE )
-                                .addAttribute( DriverDefinition.SLOT_ATTRIBUTE )
+                .addChild( builder( DatasourceDefinition.INSTANCE.getPathElement() )
+                        .addAttribute( DatasourceDefinition.JNDI_NAME_ATTRIBUTE )
+                        .addAttribute( DatasourceDefinition.DRIVER_ATTRIBUTE )
+                        .addAttribute( DatasourceDefinition.STATISTICS_ENABLED_ATTRIBUTE )
+                        .addAttribute( DatasourceDefinition.JTA_ATTRIBUTE )
+                        .addAttribute( DatasourceDefinition.CONNECTABLE_ATTRIBUTE )
+                )
+                .addChild( builder( XaDatasourceDefinition.INSTANCE.getPathElement() )
+                        .addAttribute( XaDatasourceDefinition.JNDI_NAME_ATTRIBUTE )
+                        .addAttribute( XaDatasourceDefinition.DRIVER_ATTRIBUTE )
+                        .addAttribute( XaDatasourceDefinition.STATISTICS_ENABLED_ATTRIBUTE )
+                )
+                .addChild( builder( DriverDefinition.INSTANCE.getPathElement() )
+                        .setXmlWrapperElement( DriverDefinition.DRIVERS_ELEMENT_NAME )
+                        .addAttribute( DriverDefinition.DRIVER_CLASS_ATTRIBUTE )
+                        .addAttribute( DriverDefinition.MODULE_ATTRIBUTE )
+                        .addAttribute( DriverDefinition.SLOT_ATTRIBUTE )
                 ).build();
     }
 

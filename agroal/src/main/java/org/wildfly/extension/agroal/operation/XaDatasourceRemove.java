@@ -21,35 +21,25 @@
  */
 package org.wildfly.extension.agroal.operation;
 
-import org.jboss.as.controller.AbstractAddStepHandler;
-import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.dmr.ModelNode;
-import org.wildfly.extension.agroal.definition.DriverDefinition;
 
 /**
- * Handler responsible for adding a driver resource to the model
+ * Handler responsible for removing a datasource resource from the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DriverAdd extends AbstractAddStepHandler {
+public class XaDatasourceRemove extends AbstractRemoveStepHandler {
 
-    public static final DriverAdd INSTANCE = new DriverAdd();
+    public static final XaDatasourceRemove INSTANCE = new XaDatasourceRemove();
 
-    private DriverAdd() {
-    }
-
-    @Override
-    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for ( AttributeDefinition attributeDefinition : DriverDefinition.INSTANCE.getAttributes() ) {
-            attributeDefinition.validateAndSet( operation, model );
-        }
+    private XaDatasourceRemove() {
     }
 
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-        super.performRuntime( context, operation, model );
         // TODO:
     }
 }

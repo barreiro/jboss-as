@@ -21,66 +21,59 @@
  */
 package org.wildfly.extension.agroal.definition;
 
-import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.OperationStepHandler;
+import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
+import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.operations.validation.ParameterValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
+import org.jboss.as.controller.registry.AttributeAccess;
+import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
-import org.wildfly.extension.agroal.operation.DriverAdd;
-import org.wildfly.extension.agroal.operation.DriverRemove;
 
-import java.util.Collection;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
-import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
-import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
 
 /**
- * Definition for the driver resource
+ * Common Definition for the datasource resource
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DriverDefinition extends PersistentResourceDefinition {
-
-    public static final DriverDefinition INSTANCE = new DriverDefinition();
-
-    public static final String DRIVERS_ELEMENT_NAME = "drivers";
-    private static final String DRIVER_ELEMENT_NAME = "driver";
+public abstract class AbstractDatasourceDefinition extends PersistentResourceDefinition {
 
     private static final ParameterValidator NON_EMPTY_STRING = new StringLengthValidator( 1 );
 
-    public static final SimpleAttributeDefinition DRIVER_CLASS_ATTRIBUTE = create( "driver-class", ModelType.STRING )
+    public static final SimpleAttributeDefinition JNDI_NAME_ATTRIBUTE = create( "jndi-name", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
             .setValidator( NON_EMPTY_STRING )
             .build();
 
-    public static final SimpleAttributeDefinition MODULE_ATTRIBUTE = create( "module", ModelType.STRING )
+    public static final SimpleAttributeDefinition DRIVER_ATTRIBUTE = create( "driver", ModelType.STRING )
             .setAllowExpression( true )
-            .setRestartAllServices()
+            .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
             .setValidator( NON_EMPTY_STRING )
             .build();
 
-    public static final SimpleAttributeDefinition SLOT_ATTRIBUTE = create( "slot", ModelType.STRING )
+    public static final SimpleAttributeDefinition STATISTICS_ENABLED_ATTRIBUTE = create( "statistics-enabled", ModelType.BOOLEAN )
             .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( false ) )
+            .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
             .setRequired( false )
-            .setRestartAllServices()
-            .setValidator( NON_EMPTY_STRING )
             .build();
 
-    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( DRIVER_CLASS_ATTRIBUTE, MODULE_ATTRIBUTE, SLOT_ATTRIBUTE ) );
+    private static final List<PersistentResourceDefinition> CHILDREN = unmodifiableList( asList( ) );
 
-    // --- //
-
-    private DriverDefinition() {
-        super( pathElement( DRIVER_ELEMENT_NAME ), getResolver( DRIVER_ELEMENT_NAME ), DriverAdd.INSTANCE, DriverRemove.INSTANCE );
+    protected AbstractDatasourceDefinition(PathElement pathElement, ResourceDescriptionResolver descriptionResolver, OperationStepHandler addHandler, OperationStepHandler removeHandler) {
+        super( pathElement, descriptionResolver, addHandler, removeHandler );
     }
 
     @Override
-    public Collection<AttributeDefinition> getAttributes() {
-        return ATTRIBUTES;
+    protected List<? extends PersistentResourceDefinition> getChildren() {
+        return CHILDREN;
     }
 }

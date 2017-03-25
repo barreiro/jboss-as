@@ -22,13 +22,12 @@
 package org.wildfly.extension.agroal.definition;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.operations.validation.ParameterValidator;
-import org.jboss.as.controller.operations.validation.StringLengthValidator;
+import org.jboss.as.controller.registry.AttributeAccess;
+import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
-import org.wildfly.extension.agroal.operation.DriverAdd;
-import org.wildfly.extension.agroal.operation.DriverRemove;
+import org.wildfly.extension.agroal.operation.DatasourceAdd;
+import org.wildfly.extension.agroal.operation.DatasourceRemove;
 
 import java.util.Collection;
 
@@ -39,44 +38,36 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
 
 /**
- * Definition for the driver resource
+ * Definition for the datasource resource
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DriverDefinition extends PersistentResourceDefinition {
+public class DatasourceDefinition extends AbstractDatasourceDefinition {
 
-    public static final DriverDefinition INSTANCE = new DriverDefinition();
+    public static final DatasourceDefinition INSTANCE = new DatasourceDefinition();
 
-    public static final String DRIVERS_ELEMENT_NAME = "drivers";
-    private static final String DRIVER_ELEMENT_NAME = "driver";
+    private static final String DATASOURCE_ELEMENT_NAME = "datasource";
 
-    private static final ParameterValidator NON_EMPTY_STRING = new StringLengthValidator( 1 );
-
-    public static final SimpleAttributeDefinition DRIVER_CLASS_ATTRIBUTE = create( "driver-class", ModelType.STRING )
+    public static final SimpleAttributeDefinition JTA_ATTRIBUTE = create( "jta", ModelType.BOOLEAN )
             .setAllowExpression( true )
-            .setRestartAllServices()
-            .setValidator( NON_EMPTY_STRING )
-            .build();
-
-    public static final SimpleAttributeDefinition MODULE_ATTRIBUTE = create( "module", ModelType.STRING )
-            .setAllowExpression( true )
-            .setRestartAllServices()
-            .setValidator( NON_EMPTY_STRING )
-            .build();
-
-    public static final SimpleAttributeDefinition SLOT_ATTRIBUTE = create( "slot", ModelType.STRING )
-            .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( false ) )
+            .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
             .setRequired( false )
-            .setRestartAllServices()
-            .setValidator( NON_EMPTY_STRING )
             .build();
 
-    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( DRIVER_CLASS_ATTRIBUTE, MODULE_ATTRIBUTE, SLOT_ATTRIBUTE ) );
+    public static final SimpleAttributeDefinition CONNECTABLE_ATTRIBUTE = create( "connectable", ModelType.BOOLEAN )
+            .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( false ) )
+            .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
+            .setRequired( false )
+            .build();
+
+    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JTA_ATTRIBUTE, CONNECTABLE_ATTRIBUTE, JNDI_NAME_ATTRIBUTE, DRIVER_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE ) );
 
     // --- //
 
-    private DriverDefinition() {
-        super( pathElement( DRIVER_ELEMENT_NAME ), getResolver( DRIVER_ELEMENT_NAME ), DriverAdd.INSTANCE, DriverRemove.INSTANCE );
+    private DatasourceDefinition() {
+        super( pathElement( DATASOURCE_ELEMENT_NAME ), getResolver( DATASOURCE_ELEMENT_NAME ), DatasourceAdd.INSTANCE, DatasourceRemove.INSTANCE );
     }
 
     @Override
