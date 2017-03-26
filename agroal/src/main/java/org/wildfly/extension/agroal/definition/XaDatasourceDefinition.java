@@ -41,14 +41,12 @@ public class XaDatasourceDefinition extends AbstractDatasourceDefinition {
 
     public static final XaDatasourceDefinition INSTANCE = new XaDatasourceDefinition();
 
-    private static final String DATASOURCE_ELEMENT_NAME = "xa-datasource";
-
-    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JNDI_NAME_ATTRIBUTE, DRIVER_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE ) );
+    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JNDI_NAME_ATTRIBUTE, DRIVER_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE, MAX_SIZE_ATTRIBUTE, MIN_SIZE_ATTRIBUTE, INITIAL_SIZE_ATTRIBUTE, BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE ) );
 
     // --- //
 
     private XaDatasourceDefinition() {
-        super( pathElement( DATASOURCE_ELEMENT_NAME ), getResolver( DATASOURCE_ELEMENT_NAME ), XaDatasourceAdd.INSTANCE, XaDatasourceRemove.INSTANCE );
+        super( pathElement( "xa-datasource" ), getResolver( "xa-datasource" ), XaDatasourceAdd.INSTANCE, XaDatasourceRemove.INSTANCE );
     }
 
     @Override

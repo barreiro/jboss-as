@@ -61,6 +61,7 @@ public enum Namespace {
     /**
      * Get the Namespace instance for a given URI
      */
+    @SuppressWarnings( "unused" )
     public static Namespace forUri(String uri) {
         Namespace element = MAP.get( uri );
         return element == null ? UNKNOWN : element;

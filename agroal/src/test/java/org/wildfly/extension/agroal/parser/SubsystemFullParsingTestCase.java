@@ -49,6 +49,7 @@ public class SubsystemFullParsingTestCase extends AbstractSubsystemTest {
         parseXmlResource( "agroal_1_0-full.xml" );
     }
 
+    @SuppressWarnings( "SameParameterValue" )
     private void parseXmlResource(String xmlResource) throws Exception {
         KernelServices services = super.createKernelServicesBuilder( null ).setSubsystemXmlResource( xmlResource ).build();
 

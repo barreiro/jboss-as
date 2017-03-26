@@ -58,7 +58,7 @@ public class AgroalSubsystemDefinition extends PersistentResourceDefinition {
     }
 
     @Override
-    public List<? extends PersistentResourceDefinition> getChildren() {
+    public List<PersistentResourceDefinition> getChildren() {
         return CHILDREN;
     }
 }

@@ -46,28 +46,26 @@ public class DatasourceDefinition extends AbstractDatasourceDefinition {
 
     public static final DatasourceDefinition INSTANCE = new DatasourceDefinition();
 
-    private static final String DATASOURCE_ELEMENT_NAME = "datasource";
-
-    public static final SimpleAttributeDefinition JTA_ATTRIBUTE = create( "jta", ModelType.BOOLEAN )
+    private static final SimpleAttributeDefinition JTA_ATTRIBUTE = create( "jta", ModelType.BOOLEAN )
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( false ) )
             .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
             .setRequired( false )
             .build();
 
-    public static final SimpleAttributeDefinition CONNECTABLE_ATTRIBUTE = create( "connectable", ModelType.BOOLEAN )
+    private static final SimpleAttributeDefinition CONNECTABLE_ATTRIBUTE = create( "connectable", ModelType.BOOLEAN )
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( false ) )
             .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
             .setRequired( false )
             .build();
 
-    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JTA_ATTRIBUTE, CONNECTABLE_ATTRIBUTE, JNDI_NAME_ATTRIBUTE, DRIVER_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE ) );
+    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JTA_ATTRIBUTE, CONNECTABLE_ATTRIBUTE, JNDI_NAME_ATTRIBUTE, DRIVER_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE, MAX_SIZE_ATTRIBUTE, MIN_SIZE_ATTRIBUTE, INITIAL_SIZE_ATTRIBUTE, BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE ) );
 
     // --- //
 
     private DatasourceDefinition() {
-        super( pathElement( DATASOURCE_ELEMENT_NAME ), getResolver( DATASOURCE_ELEMENT_NAME ), DatasourceAdd.INSTANCE, DatasourceRemove.INSTANCE );
+        super( pathElement( "datasource" ), getResolver( "datasource" ), DatasourceAdd.INSTANCE, DatasourceRemove.INSTANCE );
     }
 
     @Override

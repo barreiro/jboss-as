@@ -26,16 +26,10 @@ import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
-import org.jboss.as.controller.operations.validation.ParameterValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
-import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
-import java.util.List;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 
 /**
@@ -45,35 +39,59 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
  */
 public abstract class AbstractDatasourceDefinition extends PersistentResourceDefinition {
 
-    private static final ParameterValidator NON_EMPTY_STRING = new StringLengthValidator( 1 );
-
-    public static final SimpleAttributeDefinition JNDI_NAME_ATTRIBUTE = create( "jndi-name", ModelType.STRING )
+    protected static final SimpleAttributeDefinition JNDI_NAME_ATTRIBUTE = create( "jndi-name", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
-            .setValidator( NON_EMPTY_STRING )
+            .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    public static final SimpleAttributeDefinition DRIVER_ATTRIBUTE = create( "driver", ModelType.STRING )
+    protected static final SimpleAttributeDefinition DRIVER_ATTRIBUTE = create( "driver", ModelType.STRING )
             .setAllowExpression( true )
-            .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
-            .setValidator( NON_EMPTY_STRING )
+            .setValidator( new StringLengthValidator( 1 ) )
+            .setRestartAllServices()
             .build();
 
-    public static final SimpleAttributeDefinition STATISTICS_ENABLED_ATTRIBUTE = create( "statistics-enabled", ModelType.BOOLEAN )
+    protected static final SimpleAttributeDefinition STATISTICS_ENABLED_ATTRIBUTE = create( "statistics-enabled", ModelType.BOOLEAN )
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( false ) )
-            .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
             .setRequired( false )
+            .setRestartAllServices()
             .build();
 
-    private static final List<PersistentResourceDefinition> CHILDREN = unmodifiableList( asList( ) );
+    // --- connection-pool attributes //
+
+    private static final String CONNECTION_POOL_GROUP = "connection-pool";
+
+    protected static final SimpleAttributeDefinition MAX_SIZE_ATTRIBUTE = create( "max-size", ModelType.INT )
+            .setAllowExpression( true )
+            .setAttributeGroup( CONNECTION_POOL_GROUP )
+            .setRestartAllServices()
+            .build();
+
+    protected static final SimpleAttributeDefinition MIN_SIZE_ATTRIBUTE = create( "min-size", ModelType.INT )
+            .setAllowExpression( true )
+            .setAttributeGroup( CONNECTION_POOL_GROUP )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    protected static final SimpleAttributeDefinition INITIAL_SIZE_ATTRIBUTE = create( "initial-size", ModelType.INT )
+            .setAllowExpression( true )
+            .setAttributeGroup( CONNECTION_POOL_GROUP )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    protected static final SimpleAttributeDefinition BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE = create( "blocking-timeout-millis", ModelType.INT )
+            .setAllowExpression( true )
+            .setAttributeGroup( CONNECTION_POOL_GROUP )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    // --- //
 
     protected AbstractDatasourceDefinition(PathElement pathElement, ResourceDescriptionResolver descriptionResolver, OperationStepHandler addHandler, OperationStepHandler removeHandler) {
         super( pathElement, descriptionResolver, addHandler, removeHandler );
-    }
-
-    @Override
-    protected List<? extends PersistentResourceDefinition> getChildren() {
-        return CHILDREN;
     }
 }

@@ -48,27 +48,24 @@ public class DriverDefinition extends PersistentResourceDefinition {
     public static final DriverDefinition INSTANCE = new DriverDefinition();
 
     public static final String DRIVERS_ELEMENT_NAME = "drivers";
-    private static final String DRIVER_ELEMENT_NAME = "driver";
 
-    private static final ParameterValidator NON_EMPTY_STRING = new StringLengthValidator( 1 );
-
-    public static final SimpleAttributeDefinition DRIVER_CLASS_ATTRIBUTE = create( "driver-class", ModelType.STRING )
+    private static final SimpleAttributeDefinition DRIVER_CLASS_ATTRIBUTE = create( "driver-class", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
-            .setValidator( NON_EMPTY_STRING )
+            .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    public static final SimpleAttributeDefinition MODULE_ATTRIBUTE = create( "module", ModelType.STRING )
+    private static final SimpleAttributeDefinition MODULE_ATTRIBUTE = create( "module", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
-            .setValidator( NON_EMPTY_STRING )
+            .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    public static final SimpleAttributeDefinition SLOT_ATTRIBUTE = create( "slot", ModelType.STRING )
+    private static final SimpleAttributeDefinition SLOT_ATTRIBUTE = create( "slot", ModelType.STRING )
             .setAllowExpression( true )
             .setRequired( false )
             .setRestartAllServices()
-            .setValidator( NON_EMPTY_STRING )
+            .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
     private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( DRIVER_CLASS_ATTRIBUTE, MODULE_ATTRIBUTE, SLOT_ATTRIBUTE ) );
@@ -76,7 +73,7 @@ public class DriverDefinition extends PersistentResourceDefinition {
     // --- //
 
     private DriverDefinition() {
-        super( pathElement( DRIVER_ELEMENT_NAME ), getResolver( DRIVER_ELEMENT_NAME ), DriverAdd.INSTANCE, DriverRemove.INSTANCE );
+        super( pathElement( "driver" ), getResolver( "driver" ), DriverAdd.INSTANCE, DriverRemove.INSTANCE );
     }
 
     @Override

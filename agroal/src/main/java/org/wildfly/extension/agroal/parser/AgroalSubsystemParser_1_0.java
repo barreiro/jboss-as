@@ -21,6 +21,7 @@
  */
 package org.wildfly.extension.agroal.parser;
 
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.PersistentResourceXMLParser;
 import org.wildfly.extension.agroal.Namespace;
@@ -32,7 +33,7 @@ import org.wildfly.extension.agroal.definition.XaDatasourceDefinition;
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
 
 /**
- * The subsystem parser, which uses STAX to read and write to and from xml
+ * The subsystem parser, that reads and writes to and from xml
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
@@ -40,28 +41,31 @@ public class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
 
     public static final AgroalSubsystemParser_1_0 INSTANCE = new AgroalSubsystemParser_1_0();
 
-    private static final PersistentResourceXMLDescription XML_DESCRIPTION;
+    private static final PersistentResourceXMLDescription.PersistentResourceXMLBuilder XML_DESCRIPTION;
 
     static {
-        XML_DESCRIPTION = builder( AgroalSubsystemDefinition.INSTANCE.getPathElement(), Namespace.AGROAL_1_0.getUriString() )
-                .addChild( builder( DatasourceDefinition.INSTANCE.getPathElement() )
-                        .addAttribute( DatasourceDefinition.JNDI_NAME_ATTRIBUTE )
-                        .addAttribute( DatasourceDefinition.DRIVER_ATTRIBUTE )
-                        .addAttribute( DatasourceDefinition.STATISTICS_ENABLED_ATTRIBUTE )
-                        .addAttribute( DatasourceDefinition.JTA_ATTRIBUTE )
-                        .addAttribute( DatasourceDefinition.CONNECTABLE_ATTRIBUTE )
-                )
-                .addChild( builder( XaDatasourceDefinition.INSTANCE.getPathElement() )
-                        .addAttribute( XaDatasourceDefinition.JNDI_NAME_ATTRIBUTE )
-                        .addAttribute( XaDatasourceDefinition.DRIVER_ATTRIBUTE )
-                        .addAttribute( XaDatasourceDefinition.STATISTICS_ENABLED_ATTRIBUTE )
-                )
-                .addChild( builder( DriverDefinition.INSTANCE.getPathElement() )
-                        .setXmlWrapperElement( DriverDefinition.DRIVERS_ELEMENT_NAME )
-                        .addAttribute( DriverDefinition.DRIVER_CLASS_ATTRIBUTE )
-                        .addAttribute( DriverDefinition.MODULE_ATTRIBUTE )
-                        .addAttribute( DriverDefinition.SLOT_ATTRIBUTE )
-                ).build();
+        XML_DESCRIPTION = builder( AgroalSubsystemDefinition.INSTANCE.getPathElement(), Namespace.AGROAL_1_0.getUriString() );
+
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder datasource = builder( DatasourceDefinition.INSTANCE.getPathElement() );
+        datasource.setUseElementsForGroups( true );
+        for ( AttributeDefinition attribute : DatasourceDefinition.INSTANCE.getAttributes() ) {
+            datasource.addAttribute( attribute );
+        }
+        XML_DESCRIPTION.addChild( datasource );
+
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder xaDatasource = builder( XaDatasourceDefinition.INSTANCE.getPathElement() );
+        xaDatasource.setUseElementsForGroups( true );
+        for ( AttributeDefinition attribute : XaDatasourceDefinition.INSTANCE.getAttributes() ) {
+            xaDatasource.addAttribute( attribute );
+        }
+        XML_DESCRIPTION.addChild( xaDatasource );
+
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder driver = builder( DriverDefinition.INSTANCE.getPathElement() );
+        driver.setXmlWrapperElement( DriverDefinition.DRIVERS_ELEMENT_NAME );
+        for ( AttributeDefinition attribute : DriverDefinition.INSTANCE.getAttributes() ) {
+            driver.addAttribute( attribute );
+        }
+        XML_DESCRIPTION.addChild( driver );
     }
 
     private AgroalSubsystemParser_1_0() {
@@ -69,6 +73,6 @@ public class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
 
     @Override
     public PersistentResourceXMLDescription getParserDescription() {
-        return XML_DESCRIPTION;
+        return XML_DESCRIPTION.build();
     }
 }

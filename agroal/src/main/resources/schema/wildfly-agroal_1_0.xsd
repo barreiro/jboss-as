@@ -226,7 +226,7 @@
         </xs:all>
         <xs:attribute name="max-size" type="xs:nonNegativeInteger" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Maximum number of connections for a pool ]]></xs:documentation>
+                <xs:documentation><![CDATA[[ Maximum number of connections in the pool ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="min-size" type="xs:nonNegativeInteger" use="optional">
@@ -254,7 +254,7 @@
     <xs:complexType name="backgroundValidationType">
         <xs:attribute name="millis" type="xs:nonNegativeInteger" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Time in milliseconds between validation ]]></xs:documentation>
+                <xs:documentation><![CDATA[[ Time in milliseconds between background validation runs ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
@@ -270,8 +270,7 @@
     <xs:complexType name="idleRemovalType">
         <xs:attribute name="minutes" type="xs:nonNegativeInteger" use="required">
             <xs:annotation>
-                <xs:documentation>
-                    <![CDATA[[ Time in minutes a connection has to be idle for being eligible for removal ]]></xs:documentation>
+                <xs:documentation><![CDATA[[ Time in minutes a connection has to be idle before it can be removed ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
