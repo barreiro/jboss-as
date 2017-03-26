@@ -21,11 +21,13 @@
  */
 package org.wildfly.extension.agroal.definition;
 
+import io.agroal.api.configuration.AgroalConnectionFactoryConfiguration;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
+import org.jboss.as.controller.operations.validation.EnumValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
@@ -85,6 +87,40 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
     protected static final SimpleAttributeDefinition BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE = create( "blocking-timeout-millis", ModelType.INT )
             .setAllowExpression( true )
             .setAttributeGroup( CONNECTION_POOL_GROUP )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    // --- connection-factory attributes //
+
+    private static final String CONNECTION_FACTORY_GROUP = "connection-factory";
+
+    protected static final SimpleAttributeDefinition URL_ATTRIBUTE = create( "url", ModelType.STRING )
+            .setAllowExpression( true )
+            .setAttributeGroup( CONNECTION_FACTORY_GROUP )
+            .setRestartAllServices()
+            .setValidator( new StringLengthValidator( 1 ) )
+            .build();
+
+    protected static final SimpleAttributeDefinition TRANSACTION_ISOLATION_ATTRIBUTE = create( "transaction-isolation", ModelType.STRING )
+            .setAllowExpression( true )
+            .setAllowedValues( "NONE", "READ_UNCOMMITTED", "READ_COMMITTED", "REPEATABLE_READ", "SERIALIZABLE" )
+            .setAttributeGroup( CONNECTION_FACTORY_GROUP )
+            .setRequired( false )
+            .setRestartAllServices()
+            .setValidator( EnumValidator.create( AgroalConnectionFactoryConfiguration.TransactionIsolation.class, true, true ) )
+            .build();
+
+    protected static final SimpleAttributeDefinition INTERRUPT_PROTECTION_ATTRIBUTE = create( "interrupt-protection", ModelType.BOOLEAN )
+            .setAllowExpression( true )
+            .setAttributeGroup( CONNECTION_FACTORY_GROUP )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    protected static final SimpleAttributeDefinition NEW_CONNECTION_SQL_ATTRIBUTE = create( "new-connection-sql", ModelType.STRING )
+            .setAllowExpression( true )
+            .setAttributeGroup( CONNECTION_FACTORY_GROUP )
             .setRequired( false )
             .setRestartAllServices()
             .build();

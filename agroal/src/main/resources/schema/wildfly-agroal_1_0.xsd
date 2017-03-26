@@ -153,7 +153,7 @@
         </xs:attribute>
         <xs:attribute name="new-connection-sql" type="xs:token" use="optional">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ An SQL statement to execute whenever a connection is created ]]></xs:documentation>
+                <xs:documentation><![CDATA[[ SQL statement to be executed on a connection after its creation ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
@@ -162,15 +162,15 @@
         <xs:annotation>
             <xs:documentation>
                 <![CDATA[[ Define constants used as the possible transaction isolation levels in transaction-isolation type ]>
-                <![CDATA[[ Include: TRANSACTION_READ_UNCOMMITTED, TRANSACTION_READ_COMMITTED, TRANSACTION_REPEATABLE_READ, TRANSACTION_SERIALIZABLE, TRANSACTION_NONE ]]>
+                <![CDATA[[ Include: NONE, READ_UNCOMMITTED, READ_COMMITTED, REPEATABLE_READ, SERIALIZABLE ]]>
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:token">
-            <xs:enumeration value="TRANSACTION_READ_UNCOMMITTED"/>
-            <xs:enumeration value="TRANSACTION_READ_COMMITTED"/>
-            <xs:enumeration value="TRANSACTION_REPEATABLE_READ"/>
-            <xs:enumeration value="TRANSACTION_SERIALIZABLE"/>
-            <xs:enumeration value="TRANSACTION_NONE"/>
+            <xs:enumeration value="NONE"/>
+            <xs:enumeration value="READ_UNCOMMITTED"/>
+            <xs:enumeration value="READ_COMMITTED"/>
+            <xs:enumeration value="REPEATABLE_READ"/>
+            <xs:enumeration value="SERIALIZABLE"/>
         </xs:restriction>
     </xs:simpleType>
 
