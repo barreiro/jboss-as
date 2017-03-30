@@ -29,7 +29,6 @@ import org.jboss.dmr.ModelNode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.wildfly.extension.agroal.AgroalExtension;
-import org.wildfly.extension.agroal.Namespace;
 
 import java.util.List;
 

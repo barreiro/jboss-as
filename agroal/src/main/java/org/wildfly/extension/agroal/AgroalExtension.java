@@ -31,6 +31,7 @@ import org.jboss.as.controller.parsing.ExtensionParsingContext;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.wildfly.extension.agroal.definition.AgroalSubsystemDefinition;
 import org.wildfly.extension.agroal.parser.AgroalSubsystemParser_1_0;
+import org.wildfly.extension.agroal.parser.Namespace;
 
 /**
  * Defines an extension to provide DataSources based on the Agroal project

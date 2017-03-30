@@ -125,6 +125,11 @@
 
     <xs:complexType name="connectionFactoryType">
         <xs:all>
+            <xs:element name="new-connection" type="newConnectionType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation><![CDATA[[ Actions to perform on a connection after creation ]]></xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="security" type="securityType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation><![CDATA[[ Enables basic authentication ]]></xs:documentation>
@@ -151,11 +156,6 @@
                 <xs:documentation><![CDATA[[ Enables protection against interrupts on network calls ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="new-connection-sql" type="xs:token" use="optional">
-            <xs:annotation>
-                <xs:documentation><![CDATA[[ SQL statement to be executed on a connection after its creation ]]></xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:simpleType name="transactionIsolationType">
@@ -176,24 +176,32 @@
 
     <!-- connection-factory features -->
 
+    <xs:complexType name="newConnectionType">
+        <xs:attribute name="sql" type="xs:token" use="required">
+            <xs:annotation>
+                <xs:documentation><![CDATA[[ SQL statement to be executed on a connection after creation ]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
     <xs:complexType name="securityType">
         <xs:attribute name="username" type="xs:token" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Username used when creating a new connection ]]></xs:documentation>
+                <xs:documentation><![CDATA[[ Username used when creating a connection ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="password" type="xs:token" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Password used when creating a new connection ]]></xs:documentation>
+                <xs:documentation><![CDATA[[ Password used when creating a connection ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="connectionPropertiesType">
         <xs:sequence minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="connection-property" type="connectionPropertyType">
+            <xs:element name="property" type="connectionPropertyType">
                 <xs:annotation>
-                    <xs:documentation><![CDATA[[ Property to be passed to the JDBC driver when creating a connection ]]></xs:documentation>
+                    <xs:documentation><![CDATA[[ Properties to be passed to the JDBC driver when creating a connection ]]></xs:documentation>
                 </xs:annotation>
             </xs:element>
         </xs:sequence>

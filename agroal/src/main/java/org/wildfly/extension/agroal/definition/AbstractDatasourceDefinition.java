@@ -22,9 +22,11 @@
 package org.wildfly.extension.agroal.definition;
 
 import io.agroal.api.configuration.AgroalConnectionFactoryConfiguration;
+import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
+import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.operations.validation.EnumValidator;
@@ -60,68 +62,114 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setRestartAllServices()
             .build();
 
-    // --- connection-pool attributes //
-
-    private static final String CONNECTION_POOL_GROUP = "connection-pool";
-
-    protected static final SimpleAttributeDefinition MAX_SIZE_ATTRIBUTE = create( "max-size", ModelType.INT )
-            .setAllowExpression( true )
-            .setAttributeGroup( CONNECTION_POOL_GROUP )
-            .setRestartAllServices()
-            .build();
-
-    protected static final SimpleAttributeDefinition MIN_SIZE_ATTRIBUTE = create( "min-size", ModelType.INT )
-            .setAllowExpression( true )
-            .setAttributeGroup( CONNECTION_POOL_GROUP )
-            .setRequired( false )
-            .setRestartAllServices()
-            .build();
-
-    protected static final SimpleAttributeDefinition INITIAL_SIZE_ATTRIBUTE = create( "initial-size", ModelType.INT )
-            .setAllowExpression( true )
-            .setAttributeGroup( CONNECTION_POOL_GROUP )
-            .setRequired( false )
-            .setRestartAllServices()
-            .build();
-
-    protected static final SimpleAttributeDefinition BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE = create( "blocking-timeout-millis", ModelType.INT )
-            .setAllowExpression( true )
-            .setAttributeGroup( CONNECTION_POOL_GROUP )
-            .setRequired( false )
-            .setRestartAllServices()
-            .build();
-
     // --- connection-factory attributes //
 
-    private static final String CONNECTION_FACTORY_GROUP = "connection-factory";
-
-    protected static final SimpleAttributeDefinition URL_ATTRIBUTE = create( "url", ModelType.STRING )
+    private static final SimpleAttributeDefinition URL_ATTRIBUTE = create( "url", ModelType.STRING )
             .setAllowExpression( true )
-            .setAttributeGroup( CONNECTION_FACTORY_GROUP )
             .setRestartAllServices()
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    protected static final SimpleAttributeDefinition TRANSACTION_ISOLATION_ATTRIBUTE = create( "transaction-isolation", ModelType.STRING )
+    private static final SimpleAttributeDefinition TRANSACTION_ISOLATION_ATTRIBUTE = create( "transaction-isolation", ModelType.STRING )
             .setAllowExpression( true )
             .setAllowedValues( "NONE", "READ_UNCOMMITTED", "READ_COMMITTED", "REPEATABLE_READ", "SERIALIZABLE" )
-            .setAttributeGroup( CONNECTION_FACTORY_GROUP )
             .setRequired( false )
             .setRestartAllServices()
             .setValidator( EnumValidator.create( AgroalConnectionFactoryConfiguration.TransactionIsolation.class, true, true ) )
             .build();
 
-    protected static final SimpleAttributeDefinition INTERRUPT_PROTECTION_ATTRIBUTE = create( "interrupt-protection", ModelType.BOOLEAN )
+    private static final SimpleAttributeDefinition INTERRUPT_PROTECTION_ATTRIBUTE = create( "interrupt-protection", ModelType.BOOLEAN )
             .setAllowExpression( true )
-            .setAttributeGroup( CONNECTION_FACTORY_GROUP )
             .setRequired( false )
             .setRestartAllServices()
             .build();
 
-    protected static final SimpleAttributeDefinition NEW_CONNECTION_SQL_ATTRIBUTE = create( "new-connection-sql", ModelType.STRING )
+    private static final SimpleAttributeDefinition NEW_CONNECTION_SQL_ATTRIBUTE = create( "new-connection-sql", ModelType.STRING )
+            .setAttributeGroup( "new-connection" )
             .setAllowExpression( true )
-            .setAttributeGroup( CONNECTION_FACTORY_GROUP )
             .setRequired( false )
+            .setRestartAllServices()
+            .setXmlName( "sql" )
+            .build();
+
+    private static final SimpleAttributeDefinition SECURITY_USERNAME_ATTRIBUTE = create( "security-username", ModelType.STRING )
+            .setAttributeGroup( "security" )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .setValidator( new StringLengthValidator( 1 ) )
+            .setXmlName( "username" )
+            .build();
+
+    private static final SimpleAttributeDefinition SECURITY_PASSWORD_ATTRIBUTE = create( "security-password", ModelType.STRING )
+            .setAttributeGroup( "security" )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .setValidator( new StringLengthValidator( 1 ) )
+            .setXmlName( "password" )
+            .build();
+
+    private static final PropertiesAttributeDefinition CONNECTION_PROPERTIES_ATTRIBUTE = new PropertiesAttributeDefinition.Builder( "connection-properties", true )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    protected static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-factory", URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, INTERRUPT_PROTECTION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
+            .setRestartAllServices()
+            .build();
+
+    // --- connection-pool attributes //
+
+    private static final SimpleAttributeDefinition MAX_SIZE_ATTRIBUTE = create( "max-size", ModelType.INT )
+            .setAllowExpression( true )
+            .setRestartAllServices()
+            .build();
+
+    private static final SimpleAttributeDefinition MIN_SIZE_ATTRIBUTE = create( "min-size", ModelType.INT )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    private static final SimpleAttributeDefinition INITIAL_SIZE_ATTRIBUTE = create( "initial-size", ModelType.INT )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    private static final SimpleAttributeDefinition BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE = create( "blocking-timeout-millis", ModelType.INT )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    private static final SimpleAttributeDefinition BACKGROUND_VALIDATION_ATTRIBUTE = create( "background-validation-millis", ModelType.INT )
+            .setAttributeGroup( "background-validation" )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .setXmlName( "millis" )
+            .build();
+
+    private static final SimpleAttributeDefinition LEAK_DETECTION_ATTRIBUTE = create( "leak-detection-millis", ModelType.INT )
+            .setAttributeGroup( "leak-detection" )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .setXmlName( "millis" )
+            .build();
+
+    private static final SimpleAttributeDefinition IDLE_REMOVAL_ATTRIBUTE = create( "idle-removal-minutes", ModelType.INT )
+            .setAttributeGroup( "idle-removal" )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .setXmlName( "minutes" )
+            .build();
+
+    protected static final ObjectTypeAttributeDefinition CONNECTION_POOL_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-pool", MAX_SIZE_ATTRIBUTE, MIN_SIZE_ATTRIBUTE, INITIAL_SIZE_ATTRIBUTE, BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE, BACKGROUND_VALIDATION_ATTRIBUTE, LEAK_DETECTION_ATTRIBUTE, IDLE_REMOVAL_ATTRIBUTE )
             .setRestartAllServices()
             .build();
 

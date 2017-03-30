@@ -23,7 +23,6 @@ package org.wildfly.extension.agroal.parser;
 
 import org.jboss.as.subsystem.test.AbstractSubsystemBaseTest;
 import org.wildfly.extension.agroal.AgroalExtension;
-import org.wildfly.extension.agroal.Namespace;
 
 import java.io.IOException;
 

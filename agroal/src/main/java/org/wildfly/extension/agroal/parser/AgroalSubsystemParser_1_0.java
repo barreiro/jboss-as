@@ -21,10 +21,8 @@
  */
 package org.wildfly.extension.agroal.parser;
 
-import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.PersistentResourceXMLParser;
-import org.wildfly.extension.agroal.Namespace;
 import org.wildfly.extension.agroal.definition.AgroalSubsystemDefinition;
 import org.wildfly.extension.agroal.definition.DatasourceDefinition;
 import org.wildfly.extension.agroal.definition.DriverDefinition;
@@ -33,7 +31,7 @@ import org.wildfly.extension.agroal.definition.XaDatasourceDefinition;
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
 
 /**
- * The subsystem parser, that reads and writes to and from xml
+ * The subsystem parser and marshaller, that reads the model to and from it's xml persistent representation
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
@@ -46,26 +44,18 @@ public class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
     static {
         XML_DESCRIPTION = builder( AgroalSubsystemDefinition.INSTANCE.getPathElement(), Namespace.AGROAL_1_0.getUriString() );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder datasource = builder( DatasourceDefinition.INSTANCE.getPathElement() );
-        datasource.setUseElementsForGroups( true );
-        for ( AttributeDefinition attribute : DatasourceDefinition.INSTANCE.getAttributes() ) {
-            datasource.addAttribute( attribute );
-        }
-        XML_DESCRIPTION.addChild( datasource );
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder datasourceXMLBuilder = builder( DatasourceDefinition.INSTANCE.getPathElement() );
+        DatasourceDefinition.INSTANCE.getAttributes().forEach( datasourceXMLBuilder::addAttribute );
+        XML_DESCRIPTION.addChild( datasourceXMLBuilder );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder xaDatasource = builder( XaDatasourceDefinition.INSTANCE.getPathElement() );
-        xaDatasource.setUseElementsForGroups( true );
-        for ( AttributeDefinition attribute : XaDatasourceDefinition.INSTANCE.getAttributes() ) {
-            xaDatasource.addAttribute( attribute );
-        }
-        XML_DESCRIPTION.addChild( xaDatasource );
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder xaDatasourceXMLBuilder = builder( XaDatasourceDefinition.INSTANCE.getPathElement() );
+        XaDatasourceDefinition.INSTANCE.getAttributes().forEach( xaDatasourceXMLBuilder::addAttribute );
+        XML_DESCRIPTION.addChild( xaDatasourceXMLBuilder );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder driver = builder( DriverDefinition.INSTANCE.getPathElement() );
-        driver.setXmlWrapperElement( DriverDefinition.DRIVERS_ELEMENT_NAME );
-        for ( AttributeDefinition attribute : DriverDefinition.INSTANCE.getAttributes() ) {
-            driver.addAttribute( attribute );
-        }
-        XML_DESCRIPTION.addChild( driver );
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder driverXMLBuilder = builder( DriverDefinition.INSTANCE.getPathElement() );
+        driverXMLBuilder.setXmlWrapperElement( DriverDefinition.DRIVERS_ELEMENT_NAME );
+        DriverDefinition.INSTANCE.getAttributes().forEach( driverXMLBuilder::addAttribute );
+        XML_DESCRIPTION.addChild( driverXMLBuilder );
     }
 
     private AgroalSubsystemParser_1_0() {
