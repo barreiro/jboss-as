@@ -1,5 +1,5 @@
 <subsystem xmlns="urn:jboss:domain:agroal:1.0">
-    <datasource name="sample" jndi-name="java:jboss/datasources/ExampleDS" driver="h2" jta="true" connectable="true" statistics-enabled="false">
+    <datasource name="sample" jndi-name="java:jboss/datasources/ExampleDS" driver="h2" jta="true" connectable="true" statistics-enabled="true">
         <connection-factory url="jdbc:h2:tcp://localhost:1701" transaction-isolation="SERIALIZABLE" interrupt-protection="true">
             <new-connection sql="SELECT 1"/>
             <security username="sa" password="sa" />

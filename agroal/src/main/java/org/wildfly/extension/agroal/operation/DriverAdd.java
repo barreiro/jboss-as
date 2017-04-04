@@ -25,8 +25,19 @@ import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleLoadException;
+import org.jboss.msc.service.ServiceName;
 import org.wildfly.extension.agroal.definition.DriverDefinition;
+import org.wildfly.extension.agroal.logging.AgroalLogger;
+import org.wildfly.extension.agroal.service.DriverService;
+
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.wildfly.extension.agroal.definition.DriverDefinition.DRIVER_CLASS_ATTRIBUTE;
+import static org.wildfly.extension.agroal.definition.DriverDefinition.MODULE_ATTRIBUTE;
+import static org.wildfly.extension.agroal.definition.DriverDefinition.SLOT_ATTRIBUTE;
 
 /**
  * Handler responsible for adding a driver resource to the model
@@ -49,7 +60,26 @@ public class DriverAdd extends AbstractAddStepHandler {
 
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-        super.performRuntime( context, operation, model );
-        // TODO:
+        String driverName = PathAddress.pathAddress( operation.require( OP_ADDR ) ).getLastElement().getValue();
+
+        String driverClassName = DRIVER_CLASS_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+        String moduleName = MODULE_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+        String slotName = SLOT_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+
+        Module module;
+        try {
+            module = Module.getCallerModuleLoader().loadModule( moduleName + ":" + slotName );
+            module.getClassLoader().loadClass( driverClassName );
+
+            AgroalLogger.DRIVER_LOGGER.debugf( "loaded module '%s:%s' for driver: %s", moduleName, slotName, driverName );
+        } catch ( ModuleLoadException e ) {
+            throw new OperationFailedException( "failed to load module '" + moduleName + ":" + slotName + "'", e );
+        } catch ( ClassNotFoundException e ) {
+            throw new OperationFailedException( "failed to load class '" + driverClassName + "'", e );
+        }
+
+        ServiceName driverServiceName = ServiceName.of( ServiceName.JBOSS, "agroal", "jdbc-driver", driverName );
+        DriverService driverService = new DriverService( className -> module.getClassLoader() );
+        context.getServiceTarget().addService( driverServiceName, driverService ).install();
     }
 }

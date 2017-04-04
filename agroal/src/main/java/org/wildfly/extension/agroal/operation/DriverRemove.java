@@ -24,7 +24,12 @@ package org.wildfly.extension.agroal.operation;
 import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
 import org.jboss.dmr.ModelNode;
+import org.jboss.msc.service.ServiceName;
+import org.wildfly.extension.agroal.logging.AgroalLogger;
+
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 
 /**
  * Handler responsible for removing a driver resource from the model
@@ -40,6 +45,11 @@ public class DriverRemove extends AbstractRemoveStepHandler {
 
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-        // TODO:
+        String driverName = PathAddress.pathAddress( operation.require( OP_ADDR ) ).getLastElement().getValue();
+
+        ServiceName driverServiceName = ServiceName.of( ServiceName.JBOSS, "agroal", "jdbc-driver", driverName );
+        context.removeService( driverServiceName );
+
+        AgroalLogger.DRIVER_LOGGER.debugf( "unloaded driver: %s", driverName );
     }
 }

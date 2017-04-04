@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.wildfly.extension.agroal.AgroalExtension;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
+import static org.jboss.as.subsystem.test.AdditionalInitialization.MANAGEMENT;
 
 /**
  * Tests parsing of XML files with all elements and attributes
@@ -51,7 +52,7 @@ public class SubsystemFullParsingTestCase extends AbstractSubsystemTest {
 
     @SuppressWarnings( "SameParameterValue" )
     private void parseXmlResource(String xmlResource) throws Exception {
-        KernelServices services = super.createKernelServicesBuilder( null ).setSubsystemXmlResource( xmlResource ).build();
+        KernelServices services = createKernelServicesBuilder( MANAGEMENT ).setSubsystemXmlResource( xmlResource ).build();
 
         //Read the whole model and make sure it looks as expected
         ModelNode model = services.readWholeModel();

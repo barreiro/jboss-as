@@ -24,7 +24,6 @@ package org.wildfly.extension.agroal.definition;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.operations.validation.ParameterValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.dmr.ModelType;
 import org.wildfly.extension.agroal.operation.DriverAdd;
@@ -49,19 +48,19 @@ public class DriverDefinition extends PersistentResourceDefinition {
 
     public static final String DRIVERS_ELEMENT_NAME = "drivers";
 
-    private static final SimpleAttributeDefinition DRIVER_CLASS_ATTRIBUTE = create( "driver-class", ModelType.STRING )
+    public static final SimpleAttributeDefinition DRIVER_CLASS_ATTRIBUTE = create( "driver-class", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    private static final SimpleAttributeDefinition MODULE_ATTRIBUTE = create( "module", ModelType.STRING )
+    public static final SimpleAttributeDefinition MODULE_ATTRIBUTE = create( "module", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    private static final SimpleAttributeDefinition SLOT_ATTRIBUTE = create( "slot", ModelType.STRING )
+    public static final SimpleAttributeDefinition SLOT_ATTRIBUTE = create( "slot", ModelType.STRING )
             .setAllowExpression( true )
             .setRequired( false )
             .setRestartAllServices()

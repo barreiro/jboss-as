@@ -43,19 +43,19 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
  */
 public abstract class AbstractDatasourceDefinition extends PersistentResourceDefinition {
 
-    protected static final SimpleAttributeDefinition JNDI_NAME_ATTRIBUTE = create( "jndi-name", ModelType.STRING )
+    public static final SimpleAttributeDefinition JNDI_NAME_ATTRIBUTE = create( "jndi-name", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    protected static final SimpleAttributeDefinition DRIVER_ATTRIBUTE = create( "driver", ModelType.STRING )
+    public static final SimpleAttributeDefinition DRIVER_ATTRIBUTE = create( "driver", ModelType.STRING )
             .setAllowExpression( true )
             .setValidator( new StringLengthValidator( 1 ) )
             .setRestartAllServices()
             .build();
 
-    protected static final SimpleAttributeDefinition STATISTICS_ENABLED_ATTRIBUTE = create( "statistics-enabled", ModelType.BOOLEAN )
+    public static final SimpleAttributeDefinition STATISTICS_ENABLED_ATTRIBUTE = create( "statistics-enabled", ModelType.BOOLEAN )
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( false ) )
             .setRequired( false )
@@ -64,13 +64,13 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
 
     // --- connection-factory attributes //
 
-    private static final SimpleAttributeDefinition URL_ATTRIBUTE = create( "url", ModelType.STRING )
+    public static final SimpleAttributeDefinition URL_ATTRIBUTE = create( "url", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    private static final SimpleAttributeDefinition TRANSACTION_ISOLATION_ATTRIBUTE = create( "transaction-isolation", ModelType.STRING )
+    public static final SimpleAttributeDefinition TRANSACTION_ISOLATION_ATTRIBUTE = create( "transaction-isolation", ModelType.STRING )
             .setAllowExpression( true )
             .setAllowedValues( "NONE", "READ_UNCOMMITTED", "READ_COMMITTED", "REPEATABLE_READ", "SERIALIZABLE" )
             .setRequired( false )
@@ -78,13 +78,13 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setValidator( EnumValidator.create( AgroalConnectionFactoryConfiguration.TransactionIsolation.class, true, true ) )
             .build();
 
-    private static final SimpleAttributeDefinition INTERRUPT_PROTECTION_ATTRIBUTE = create( "interrupt-protection", ModelType.BOOLEAN )
+    public static final SimpleAttributeDefinition INTERRUPT_PROTECTION_ATTRIBUTE = create( "interrupt-protection", ModelType.BOOLEAN )
             .setAllowExpression( true )
             .setRequired( false )
             .setRestartAllServices()
             .build();
 
-    private static final SimpleAttributeDefinition NEW_CONNECTION_SQL_ATTRIBUTE = create( "new-connection-sql", ModelType.STRING )
+    public static final SimpleAttributeDefinition NEW_CONNECTION_SQL_ATTRIBUTE = create( "new-connection-sql", ModelType.STRING )
             .setAttributeGroup( "new-connection" )
             .setAllowExpression( true )
             .setRequired( false )
@@ -92,7 +92,7 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setXmlName( "sql" )
             .build();
 
-    private static final SimpleAttributeDefinition SECURITY_USERNAME_ATTRIBUTE = create( "security-username", ModelType.STRING )
+    public static final SimpleAttributeDefinition SECURITY_USERNAME_ATTRIBUTE = create( "security-username", ModelType.STRING )
             .setAttributeGroup( "security" )
             .setAllowExpression( true )
             .setRequired( false )
@@ -101,7 +101,7 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setXmlName( "username" )
             .build();
 
-    private static final SimpleAttributeDefinition SECURITY_PASSWORD_ATTRIBUTE = create( "security-password", ModelType.STRING )
+    public static final SimpleAttributeDefinition SECURITY_PASSWORD_ATTRIBUTE = create( "security-password", ModelType.STRING )
             .setAttributeGroup( "security" )
             .setAllowExpression( true )
             .setRequired( false )
@@ -110,42 +110,42 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setXmlName( "password" )
             .build();
 
-    private static final PropertiesAttributeDefinition CONNECTION_PROPERTIES_ATTRIBUTE = new PropertiesAttributeDefinition.Builder( "connection-properties", true )
+    public static final PropertiesAttributeDefinition CONNECTION_PROPERTIES_ATTRIBUTE = new PropertiesAttributeDefinition.Builder( "connection-properties", true )
             .setAllowExpression( true )
             .setRequired( false )
             .setRestartAllServices()
             .build();
 
-    protected static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-factory", URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, INTERRUPT_PROTECTION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
+    public static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-factory", URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, INTERRUPT_PROTECTION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
             .setRestartAllServices()
             .build();
 
     // --- connection-pool attributes //
 
-    private static final SimpleAttributeDefinition MAX_SIZE_ATTRIBUTE = create( "max-size", ModelType.INT )
+    public static final SimpleAttributeDefinition MAX_SIZE_ATTRIBUTE = create( "max-size", ModelType.INT )
             .setAllowExpression( true )
             .setRestartAllServices()
             .build();
 
-    private static final SimpleAttributeDefinition MIN_SIZE_ATTRIBUTE = create( "min-size", ModelType.INT )
-            .setAllowExpression( true )
-            .setRequired( false )
-            .setRestartAllServices()
-            .build();
-
-    private static final SimpleAttributeDefinition INITIAL_SIZE_ATTRIBUTE = create( "initial-size", ModelType.INT )
+    public static final SimpleAttributeDefinition MIN_SIZE_ATTRIBUTE = create( "min-size", ModelType.INT )
             .setAllowExpression( true )
             .setRequired( false )
             .setRestartAllServices()
             .build();
 
-    private static final SimpleAttributeDefinition BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE = create( "blocking-timeout-millis", ModelType.INT )
+    public static final SimpleAttributeDefinition INITIAL_SIZE_ATTRIBUTE = create( "initial-size", ModelType.INT )
             .setAllowExpression( true )
             .setRequired( false )
             .setRestartAllServices()
             .build();
 
-    private static final SimpleAttributeDefinition BACKGROUND_VALIDATION_ATTRIBUTE = create( "background-validation-millis", ModelType.INT )
+    public static final SimpleAttributeDefinition BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE = create( "blocking-timeout-millis", ModelType.INT )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .build();
+
+    public static final SimpleAttributeDefinition BACKGROUND_VALIDATION_ATTRIBUTE = create( "background-validation-millis", ModelType.INT )
             .setAttributeGroup( "background-validation" )
             .setAllowExpression( true )
             .setRequired( false )
@@ -153,7 +153,7 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setXmlName( "millis" )
             .build();
 
-    private static final SimpleAttributeDefinition LEAK_DETECTION_ATTRIBUTE = create( "leak-detection-millis", ModelType.INT )
+    public static final SimpleAttributeDefinition LEAK_DETECTION_ATTRIBUTE = create( "leak-detection-millis", ModelType.INT )
             .setAttributeGroup( "leak-detection" )
             .setAllowExpression( true )
             .setRequired( false )
@@ -161,7 +161,7 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setXmlName( "millis" )
             .build();
 
-    private static final SimpleAttributeDefinition IDLE_REMOVAL_ATTRIBUTE = create( "idle-removal-minutes", ModelType.INT )
+    public static final SimpleAttributeDefinition IDLE_REMOVAL_ATTRIBUTE = create( "idle-removal-minutes", ModelType.INT )
             .setAttributeGroup( "idle-removal" )
             .setAllowExpression( true )
             .setRequired( false )
