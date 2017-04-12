@@ -31,11 +31,11 @@ import org.jboss.dmr.ModelNode;
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class XaDatasourceRemove extends AbstractRemoveStepHandler {
+public class XaDataSourceRemove extends AbstractRemoveStepHandler {
 
-    public static final XaDatasourceRemove INSTANCE = new XaDatasourceRemove();
+    public static final XaDataSourceRemove INSTANCE = new XaDataSourceRemove();
 
-    private XaDatasourceRemove() {
+    private XaDataSourceRemove() {
     }
 
     @Override

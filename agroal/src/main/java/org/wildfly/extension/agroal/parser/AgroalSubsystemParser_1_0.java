@@ -24,9 +24,9 @@ package org.wildfly.extension.agroal.parser;
 import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.PersistentResourceXMLParser;
 import org.wildfly.extension.agroal.definition.AgroalSubsystemDefinition;
-import org.wildfly.extension.agroal.definition.DatasourceDefinition;
+import org.wildfly.extension.agroal.definition.DataSourceDefinition;
 import org.wildfly.extension.agroal.definition.DriverDefinition;
-import org.wildfly.extension.agroal.definition.XaDatasourceDefinition;
+import org.wildfly.extension.agroal.definition.XaDataSourceDefinition;
 
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
 
@@ -44,12 +44,12 @@ public class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
     static {
         XML_DESCRIPTION = builder( AgroalSubsystemDefinition.INSTANCE.getPathElement(), Namespace.AGROAL_1_0.getUriString() );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder datasourceXMLBuilder = builder( DatasourceDefinition.INSTANCE.getPathElement() );
-        DatasourceDefinition.INSTANCE.getAttributes().forEach( datasourceXMLBuilder::addAttribute );
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder datasourceXMLBuilder = builder( DataSourceDefinition.INSTANCE.getPathElement() );
+        DataSourceDefinition.INSTANCE.getAttributes().forEach( datasourceXMLBuilder::addAttribute );
         XML_DESCRIPTION.addChild( datasourceXMLBuilder );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder xaDatasourceXMLBuilder = builder( XaDatasourceDefinition.INSTANCE.getPathElement() );
-        XaDatasourceDefinition.INSTANCE.getAttributes().forEach( xaDatasourceXMLBuilder::addAttribute );
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder xaDatasourceXMLBuilder = builder( XaDataSourceDefinition.INSTANCE.getPathElement() );
+        XaDataSourceDefinition.INSTANCE.getAttributes().forEach( xaDatasourceXMLBuilder::addAttribute );
         XML_DESCRIPTION.addChild( xaDatasourceXMLBuilder );
 
         PersistentResourceXMLDescription.PersistentResourceXMLBuilder driverXMLBuilder = builder( DriverDefinition.INSTANCE.getPathElement() );

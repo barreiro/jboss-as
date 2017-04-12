@@ -19,38 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.agroal.definition;
+package org.wildfly.extension.agroal.operation;
 
+import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
-import org.wildfly.extension.agroal.operation.XaDatasourceAdd;
-import org.wildfly.extension.agroal.operation.XaDatasourceRemove;
-
-import java.util.Collection;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
-import static org.jboss.as.controller.PathElement.pathElement;
-import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
+import org.jboss.as.controller.OperationContext;
+import org.jboss.as.controller.OperationFailedException;
+import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.agroal.definition.XaDataSourceDefinition;
 
 /**
- * Definition for the xa-datasource resource
+ * Handler responsible for adding a datasource resource to the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class XaDatasourceDefinition extends AbstractDatasourceDefinition {
+public class XaDataSourceAdd extends AbstractAddStepHandler {
 
-    public static final XaDatasourceDefinition INSTANCE = new XaDatasourceDefinition();
+    public static final XaDataSourceAdd INSTANCE = new XaDataSourceAdd();
 
-    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JNDI_NAME_ATTRIBUTE, DRIVER_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE, CONNECTION_FACTORY_ATTRIBUTE, CONNECTION_POOL_ATTRIBUTE ) );
-
-    // --- //
-
-    private XaDatasourceDefinition() {
-        super( pathElement( "xa-datasource" ), getResolver( "xa-datasource" ), XaDatasourceAdd.INSTANCE, XaDatasourceRemove.INSTANCE );
+    private XaDataSourceAdd() {
     }
 
     @Override
-    public Collection<AttributeDefinition> getAttributes() {
-        return ATTRIBUTES;
+    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+        for ( AttributeDefinition attributeDefinition : XaDataSourceDefinition.INSTANCE.getAttributes() ) {
+            attributeDefinition.validateAndSet( operation, model );
+        }
+    }
+
+    @Override
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
+        super.performRuntime( context, operation, model );
+        // TODO:
     }
 }

@@ -27,31 +27,48 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 
+import java.sql.Driver;
+
 /**
  * Defines an extension to provide DataSources based on the Agroal project
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DriverService implements Service<ClassLoaderProvider> {
+public class DriverService implements Service<DriverService.DriverClass> {
 
-    private ClassLoaderProvider classLoaderProvider;
+    private final DriverClass driverClass;
 
-    public DriverService(ClassLoaderProvider classLoaderProvider) {
-        this.classLoaderProvider = classLoaderProvider;
+    public DriverService(Class<? extends Driver> driverClass) {
+        this.driverClass = new DriverClass( driverClass );
     }
 
     @Override
     public void start(StartContext context) throws StartException {
-
     }
 
     @Override
     public void stop(StopContext context) {
-
     }
 
     @Override
-    public ClassLoaderProvider getValue() throws IllegalStateException, IllegalArgumentException {
-        return classLoaderProvider;
+    public DriverClass getValue() throws IllegalStateException, IllegalArgumentException {
+        return driverClass;
+    }
+
+    public static final class DriverClass {
+
+        private final Class<? extends Driver> driverClass;
+
+        private DriverClass(Class<? extends Driver> driverClass) {
+            this.driverClass = driverClass;
+        }
+
+        public String driverClassName() {
+            return driverClass.getName();
+        }
+
+        public ClassLoaderProvider driverClassloaderProvider() {
+            return s -> driverClass.getClassLoader();
+        }
     }
 }

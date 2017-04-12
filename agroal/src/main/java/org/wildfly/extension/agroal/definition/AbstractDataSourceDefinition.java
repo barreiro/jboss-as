@@ -41,18 +41,12 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public abstract class AbstractDatasourceDefinition extends PersistentResourceDefinition {
+public abstract class AbstractDataSourceDefinition extends PersistentResourceDefinition {
 
     public static final SimpleAttributeDefinition JNDI_NAME_ATTRIBUTE = create( "jndi-name", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
             .setValidator( new StringLengthValidator( 1 ) )
-            .build();
-
-    public static final SimpleAttributeDefinition DRIVER_ATTRIBUTE = create( "driver", ModelType.STRING )
-            .setAllowExpression( true )
-            .setValidator( new StringLengthValidator( 1 ) )
-            .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition STATISTICS_ENABLED_ATTRIBUTE = create( "statistics-enabled", ModelType.BOOLEAN )
@@ -63,6 +57,12 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .build();
 
     // --- connection-factory attributes //
+
+    public static final SimpleAttributeDefinition DRIVER_ATTRIBUTE = create( "driver", ModelType.STRING )
+            .setAllowExpression( true )
+            .setValidator( new StringLengthValidator( 1 ) )
+            .setRestartAllServices()
+            .build();
 
     public static final SimpleAttributeDefinition URL_ATTRIBUTE = create( "url", ModelType.STRING )
             .setAllowExpression( true )
@@ -116,7 +116,7 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setRestartAllServices()
             .build();
 
-    public static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-factory", URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, INTERRUPT_PROTECTION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
+    public static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-factory", DRIVER_ATTRIBUTE, URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, INTERRUPT_PROTECTION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
             .setRestartAllServices()
             .build();
 
@@ -169,13 +169,13 @@ public abstract class AbstractDatasourceDefinition extends PersistentResourceDef
             .setXmlName( "minutes" )
             .build();
 
-    protected static final ObjectTypeAttributeDefinition CONNECTION_POOL_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-pool", MAX_SIZE_ATTRIBUTE, MIN_SIZE_ATTRIBUTE, INITIAL_SIZE_ATTRIBUTE, BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE, BACKGROUND_VALIDATION_ATTRIBUTE, LEAK_DETECTION_ATTRIBUTE, IDLE_REMOVAL_ATTRIBUTE )
+    public static final ObjectTypeAttributeDefinition CONNECTION_POOL_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-pool", MAX_SIZE_ATTRIBUTE, MIN_SIZE_ATTRIBUTE, INITIAL_SIZE_ATTRIBUTE, BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE, BACKGROUND_VALIDATION_ATTRIBUTE, LEAK_DETECTION_ATTRIBUTE, IDLE_REMOVAL_ATTRIBUTE )
             .setRestartAllServices()
             .build();
 
     // --- //
 
-    protected AbstractDatasourceDefinition(PathElement pathElement, ResourceDescriptionResolver descriptionResolver, OperationStepHandler addHandler, OperationStepHandler removeHandler) {
+    protected AbstractDataSourceDefinition(PathElement pathElement, ResourceDescriptionResolver descriptionResolver, OperationStepHandler addHandler, OperationStepHandler removeHandler) {
         super( pathElement, descriptionResolver, addHandler, removeHandler );
     }
 }

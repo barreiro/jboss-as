@@ -46,7 +46,7 @@ public class AgroalSubsystemDefinition extends PersistentResourceDefinition {
 
     public static final AgroalSubsystemDefinition INSTANCE = new AgroalSubsystemDefinition();
 
-    private static final List<PersistentResourceDefinition> CHILDREN = unmodifiableList( asList( DatasourceDefinition.INSTANCE, XaDatasourceDefinition.INSTANCE, DriverDefinition.INSTANCE ) );
+    private static final List<PersistentResourceDefinition> CHILDREN = unmodifiableList( asList( DataSourceDefinition.INSTANCE, XaDataSourceDefinition.INSTANCE, DriverDefinition.INSTANCE ) );
 
     private AgroalSubsystemDefinition() {
         super( pathElement( SUBSYSTEM, SUBSYSTEM_NAME ), getResolver(), AgroalSubsystemAdd.INSTANCE, AgroalSubsystemRemove.INSTANCE );

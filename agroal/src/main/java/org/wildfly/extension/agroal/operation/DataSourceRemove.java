@@ -21,35 +21,25 @@
  */
 package org.wildfly.extension.agroal.operation;
 
-import org.jboss.as.controller.AbstractAddStepHandler;
-import org.jboss.as.controller.AttributeDefinition;
+import org.jboss.as.controller.AbstractRemoveStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.dmr.ModelNode;
-import org.wildfly.extension.agroal.definition.XaDatasourceDefinition;
 
 /**
- * Handler responsible for adding a datasource resource to the model
+ * Handler responsible for removing a datasource resource from the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class XaDatasourceAdd extends AbstractAddStepHandler {
+public class DataSourceRemove extends AbstractRemoveStepHandler {
 
-    public static final XaDatasourceAdd INSTANCE = new XaDatasourceAdd();
+    public static final DataSourceRemove INSTANCE = new DataSourceRemove();
 
-    private XaDatasourceAdd() {
-    }
-
-    @Override
-    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for ( AttributeDefinition attributeDefinition : XaDatasourceDefinition.INSTANCE.getAttributes() ) {
-            attributeDefinition.validateAndSet( operation, model );
-        }
+    private DataSourceRemove() {
     }
 
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-        super.performRuntime( context, operation, model );
         // TODO:
     }
 }

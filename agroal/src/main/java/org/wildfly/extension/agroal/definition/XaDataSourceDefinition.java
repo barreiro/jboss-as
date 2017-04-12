@@ -19,37 +19,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.wildfly.extension.agroal.operation;
+package org.wildfly.extension.agroal.definition;
 
-import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.AttributeDefinition;
-import org.jboss.as.controller.OperationContext;
-import org.jboss.as.controller.OperationFailedException;
-import org.jboss.dmr.ModelNode;
-import org.wildfly.extension.agroal.definition.DatasourceDefinition;
+import org.wildfly.extension.agroal.operation.XaDataSourceAdd;
+import org.wildfly.extension.agroal.operation.XaDataSourceRemove;
+
+import java.util.Collection;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+import static org.jboss.as.controller.PathElement.pathElement;
+import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
 
 /**
- * Handler responsible for adding a datasource resource to the model
+ * Definition for the xa-datasource resource
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DatasourceAdd extends AbstractAddStepHandler {
+public class XaDataSourceDefinition extends AbstractDataSourceDefinition {
 
-    public static final DatasourceAdd INSTANCE = new DatasourceAdd();
+    public static final XaDataSourceDefinition INSTANCE = new XaDataSourceDefinition();
 
-    private DatasourceAdd() {
+    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JNDI_NAME_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE, CONNECTION_FACTORY_ATTRIBUTE, CONNECTION_POOL_ATTRIBUTE ) );
+
+    // --- //
+
+    private XaDataSourceDefinition() {
+        super( pathElement( "xa-datasource" ), getResolver( "xa-datasource" ), XaDataSourceAdd.INSTANCE, XaDataSourceRemove.INSTANCE );
     }
 
     @Override
-    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for ( AttributeDefinition attributeDefinition : DatasourceDefinition.INSTANCE.getAttributes() ) {
-            attributeDefinition.validateAndSet( operation, model );
-        }
-    }
-
-    @Override
-    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-        super.performRuntime( context, operation, model );
-        // TODO:
+    public Collection<AttributeDefinition> getAttributes() {
+        return ATTRIBUTES;
     }
 }

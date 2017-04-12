@@ -1,6 +1,6 @@
 <subsystem xmlns="urn:jboss:domain:agroal:1.0">
-    <datasource name="sample" jndi-name="java:jboss/datasources/ExampleDS" driver="h2" jta="true" connectable="true" statistics-enabled="true">
-        <connection-factory url="jdbc:h2:tcp://localhost:1701" transaction-isolation="SERIALIZABLE" interrupt-protection="true">
+    <datasource name="sample" jndi-name="java:jboss/datasources/ExampleDS" jta="true" connectable="true" statistics-enabled="true">
+        <connection-factory driver="h2" url="jdbc:h2:tcp://localhost:1701" transaction-isolation="SERIALIZABLE" interrupt-protection="true">
             <new-connection sql="SELECT 1"/>
             <security username="sa" password="sa" />
             <connection-properties>
@@ -14,12 +14,12 @@
             <idle-removal minutes="5"/>
         </connection-pool>
     </datasource>
-    <datasource name="minimal" jndi-name="java:jboss/datasources/MinimalDS" driver="h2">
-        <connection-factory url="jdbc:h2:tcp://localhost:1701"/>
+    <datasource name="minimal" jndi-name="java:jboss/datasources/MinimalDS">
+        <connection-factory driver="h2" url="jdbc:h2:tcp://localhost:1701"/>
         <connection-pool max-size="30"/>
     </datasource>
-    <xa-datasource name="sample-xa" jndi-name="java:jboss/datasources/ExampleXADS" driver="h2" statistics-enabled="false">
-        <connection-factory url="jdbc:h2:tcp://localhost:1702" transaction-isolation="REPEATABLE_READ" interrupt-protection="true">
+    <xa-datasource name="sample-xa" jndi-name="java:jboss/datasources/ExampleXADS" statistics-enabled="false">
+        <connection-factory driver="h2" url="jdbc:h2:tcp://localhost:1702" transaction-isolation="REPEATABLE_READ" interrupt-protection="true">
             <new-connection sql="SELECT 1"/>
             <security username="sa" password="sa" />
             <connection-properties>

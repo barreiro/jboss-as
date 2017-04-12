@@ -47,7 +47,7 @@ public class DriverRemove extends AbstractRemoveStepHandler {
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         String driverName = PathAddress.pathAddress( operation.require( OP_ADDR ) ).getLastElement().getValue();
 
-        ServiceName driverServiceName = ServiceName.of( ServiceName.JBOSS, "agroal", "jdbc-driver", driverName );
+        ServiceName driverServiceName = ServiceName.of( DriverAdd.DRIVER_SERVICE_PREFIX, driverName );
         context.removeService( driverServiceName );
 
         AgroalLogger.DRIVER_LOGGER.debugf( "unloaded driver: %s", driverName );

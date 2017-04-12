@@ -26,8 +26,8 @@ import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
-import org.wildfly.extension.agroal.operation.DatasourceAdd;
-import org.wildfly.extension.agroal.operation.DatasourceRemove;
+import org.wildfly.extension.agroal.operation.DataSourceAdd;
+import org.wildfly.extension.agroal.operation.DataSourceRemove;
 
 import java.util.Collection;
 
@@ -42,9 +42,9 @@ import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DatasourceDefinition extends AbstractDatasourceDefinition {
+public class DataSourceDefinition extends AbstractDataSourceDefinition {
 
-    public static final DatasourceDefinition INSTANCE = new DatasourceDefinition();
+    public static final DataSourceDefinition INSTANCE = new DataSourceDefinition();
 
     private static final SimpleAttributeDefinition JTA_ATTRIBUTE = create( "jta", ModelType.BOOLEAN )
             .setAllowExpression( true )
@@ -60,12 +60,12 @@ public class DatasourceDefinition extends AbstractDatasourceDefinition {
             .setRequired( false )
             .build();
 
-    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JTA_ATTRIBUTE, CONNECTABLE_ATTRIBUTE, JNDI_NAME_ATTRIBUTE, DRIVER_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE, CONNECTION_FACTORY_ATTRIBUTE, CONNECTION_POOL_ATTRIBUTE ) );
+    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JTA_ATTRIBUTE, CONNECTABLE_ATTRIBUTE, JNDI_NAME_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE, CONNECTION_FACTORY_ATTRIBUTE, CONNECTION_POOL_ATTRIBUTE ) );
 
     // --- //
 
-    private DatasourceDefinition() {
-        super( pathElement( "datasource" ), getResolver( "datasource" ), DatasourceAdd.INSTANCE, DatasourceRemove.INSTANCE );
+    private DataSourceDefinition() {
+        super( pathElement( "datasource" ), getResolver( "datasource" ), DataSourceAdd.INSTANCE, DataSourceRemove.INSTANCE );
     }
 
     @Override

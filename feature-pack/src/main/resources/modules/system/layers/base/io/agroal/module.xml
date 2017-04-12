@@ -31,4 +31,8 @@
         <artifact name="${io.agroal:agroal-api}"/>
         <artifact name="${io.agroal:agroal-pool}"/>
     </resources>
+
+    <dependencies>
+        <module name="javax.api"/>
+    </dependencies>
 </module>

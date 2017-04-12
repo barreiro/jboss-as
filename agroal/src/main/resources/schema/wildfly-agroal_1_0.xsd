@@ -63,11 +63,6 @@
                 <xs:documentation><![CDATA[[ JNDI name for the datasource ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="driver" type="xs:token" use="required">
-            <xs:annotation>
-                <xs:documentation><![CDATA[[ Unique reference to the JDBC driver ]]></xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
         <xs:attribute name="statistics-enabled" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ Enable statistics for this datasource ]]></xs:documentation>
@@ -141,6 +136,11 @@
                 </xs:annotation>
             </xs:element>
         </xs:all>
+        <xs:attribute name="driver" type="xs:token" use="required">
+            <xs:annotation>
+                <xs:documentation><![CDATA[[ Unique reference to the JDBC driver ]]></xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="url" type="xs:token" use="required">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ JDBC driver connection URL (e.g. "jdbc:h2:tcp://localhost:1234") ]]></xs:documentation>

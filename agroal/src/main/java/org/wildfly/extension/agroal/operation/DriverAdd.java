@@ -34,6 +34,8 @@ import org.wildfly.extension.agroal.definition.DriverDefinition;
 import org.wildfly.extension.agroal.logging.AgroalLogger;
 import org.wildfly.extension.agroal.service.DriverService;
 
+import java.sql.Driver;
+
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.wildfly.extension.agroal.definition.DriverDefinition.DRIVER_CLASS_ATTRIBUTE;
 import static org.wildfly.extension.agroal.definition.DriverDefinition.MODULE_ATTRIBUTE;
@@ -47,6 +49,8 @@ import static org.wildfly.extension.agroal.definition.DriverDefinition.SLOT_ATTR
 public class DriverAdd extends AbstractAddStepHandler {
 
     public static final DriverAdd INSTANCE = new DriverAdd();
+
+    public static final ServiceName DRIVER_SERVICE_PREFIX = ServiceName.of( "wildfly", "agroal", "jdbc-driver" );
 
     private DriverAdd() {
     }
@@ -66,20 +70,21 @@ public class DriverAdd extends AbstractAddStepHandler {
         String moduleName = MODULE_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
         String slotName = SLOT_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
 
-        Module module;
+        Class<? extends Driver> driverClass;
         try {
-            module = Module.getCallerModuleLoader().loadModule( moduleName + ":" + slotName );
-            module.getClassLoader().loadClass( driverClassName );
-
+            Module module = Module.getCallerModuleLoader().loadModule( moduleName + ":" + slotName );
+            driverClass = module.getClassLoader().loadClass( driverClassName ).asSubclass( Driver.class );
             AgroalLogger.DRIVER_LOGGER.debugf( "loaded module '%s:%s' for driver: %s", moduleName, slotName, driverName );
         } catch ( ModuleLoadException e ) {
             throw new OperationFailedException( "failed to load module '" + moduleName + ":" + slotName + "'", e );
         } catch ( ClassNotFoundException e ) {
             throw new OperationFailedException( "failed to load class '" + driverClassName + "'", e );
+        } catch ( ClassCastException e ) {
+            throw new OperationFailedException( "class '" + driverClassName + "' is not a JDBC driver", e );
         }
 
-        ServiceName driverServiceName = ServiceName.of( ServiceName.JBOSS, "agroal", "jdbc-driver", driverName );
-        DriverService driverService = new DriverService( className -> module.getClassLoader() );
+        ServiceName driverServiceName = ServiceName.of( DRIVER_SERVICE_PREFIX, driverName );
+        DriverService driverService = new DriverService( driverClass );
         context.getServiceTarget().addService( driverServiceName, driverService ).install();
     }
 }

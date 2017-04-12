@@ -33,4 +33,8 @@ public class AgroalLogger {
 
     public static final Logger DRIVER_LOGGER = Logger.getLogger( "org.wildfly.extension.agroal.driver" );
 
+    public static final Logger SERVICE_LOGGER = Logger.getLogger( "org.wildfly.extension.agroal.service" );
+
+    public static final Logger DATASOURCE_LOGGER = Logger.getLogger( "org.wildfly.extension.agroal.datasource" );
+
 }
