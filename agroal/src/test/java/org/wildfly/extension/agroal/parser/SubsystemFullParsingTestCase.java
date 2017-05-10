@@ -54,11 +54,13 @@ public class SubsystemFullParsingTestCase extends AbstractSubsystemTest {
     private void parseXmlResource(String xmlResource) throws Exception {
         KernelServices services = createKernelServicesBuilder( MANAGEMENT ).setSubsystemXmlResource( xmlResource ).build();
 
-        //Read the whole model and make sure it looks as expected
+        // Read the whole model and make sure it looks as expected
         ModelNode model = services.readWholeModel();
         Assert.assertTrue( model.get( SUBSYSTEM ).hasDefined( AgroalExtension.SUBSYSTEM_NAME ) );
 
         System.out.println( model );
         System.out.println( services.getPersistedSubsystemXml() );
+
+        createKernelServicesBuilder( MANAGEMENT ).setSubsystemXml( services.getPersistedSubsystemXml() ).build().readWholeModel();
     }
 }

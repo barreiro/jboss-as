@@ -164,10 +164,10 @@ public class AgroalObjectAttributeDefinition extends ObjectTypeAttributeDefiniti
                                     throw ParseUtils.unexpectedAttribute( reader, i, attributes.keySet() );
                                 }
                             }
+                            ParseUtils.requireNoContent( reader );
                         } else {
                             throw ParseUtils.unexpectedElement( reader );
                         }
-                        ParseUtils.requireNoContent( reader );
                     }
                     while ( !reader.getLocalName().equals( originalStartElement ) && reader.hasNext() && reader.nextTag() != XMLStreamConstants.END_ELEMENT );
                 }
@@ -229,7 +229,7 @@ public class AgroalObjectAttributeDefinition extends ObjectTypeAttributeDefiniti
                 Set<AttributeDefinition> sortedAttrs = sortAttributes( valueTypes );
                 writer.writeStartElement( attribute.getXmlName() );
                 for ( AttributeDefinition valueType : sortedAttrs ) {
-                    if ( resourceModel.hasDefined( attribute.getName(), valueType.getName() ) ) {
+                    if ( valueType.getAttributeGroup() == null && resourceModel.hasDefined( attribute.getName(), valueType.getName() ) ) {
                         ModelNode handler = resourceModel.get( attribute.getName() );
                         valueType.getAttributeMarshaller().marshall( valueType, handler, marshallDefault, writer );
                     }

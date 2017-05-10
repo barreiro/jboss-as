@@ -22,7 +22,6 @@
 package org.wildfly.extension.agroal.operation;
 
 import io.agroal.api.configuration.AgroalConnectionFactoryConfiguration.TransactionIsolation;
-import io.agroal.api.configuration.AgroalConnectionPoolConfiguration;
 import io.agroal.api.configuration.ConnectionValidator;
 import io.agroal.api.configuration.InterruptProtection;
 import io.agroal.api.configuration.supplier.AgroalConnectionFactoryConfigurationSupplier;
@@ -114,7 +113,7 @@ public class DataSourceAdd extends AbstractAddStepHandler {
         configuration.connectionValidator( ConnectionValidator.defaultValidator() );
 
         // TODO: remove
-        configuration.preFillMode( AgroalConnectionPoolConfiguration.PreFillMode.MAX );
+        //configuration.preFillMode( AgroalConnectionPoolConfiguration.PreFillMode.MAX );
 
         return configuration;
     }
