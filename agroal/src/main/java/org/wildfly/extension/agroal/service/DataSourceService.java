@@ -22,8 +22,8 @@
 package org.wildfly.extension.agroal.service;
 
 import io.agroal.api.AgroalDataSource;
-import io.agroal.api.AgroalDataSourceListener;
 import io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier;
+import io.agroal.narayana.NarayanaTransactionIntegration;
 import org.jboss.as.naming.ImmediateManagedReferenceFactory;
 import org.jboss.as.naming.ManagedReferenceFactory;
 import org.jboss.as.naming.ServiceBasedNamingStore;
@@ -37,8 +37,10 @@ import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.ImmediateValue;
 import org.jboss.msc.value.InjectedValue;
 import org.wildfly.extension.agroal.logging.AgroalLogger;
+import org.wildfly.extension.agroal.logging.LoggingDataSourceListener;
 
-import java.sql.Connection;
+import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import java.sql.SQLException;
 
 /**
@@ -52,6 +54,8 @@ public class DataSourceService implements Service<AgroalDataSource> {
     private final String jndiName;
     private final AgroalDataSourceConfigurationSupplier dataSourceConfiguration;
     private final InjectedValue<DriverService.DriverClass> driverService = new InjectedValue<>();
+    private final InjectedValue<TransactionManager> transactionManager = new InjectedValue<>();
+    private final InjectedValue<TransactionSynchronizationRegistry> transactionSynchronizationRegistry = new InjectedValue<>();
     private AgroalDataSource agroalDataSource;
 
     public DataSourceService(String dataSourceName, String jndiName, AgroalDataSourceConfigurationSupplier dataSourceConfiguration) {
@@ -69,8 +73,13 @@ public class DataSourceService implements Service<AgroalDataSource> {
                 )
         );
 
+        if ( transactionManager.getOptionalValue() != null && transactionSynchronizationRegistry.getOptionalValue() != null ) {
+            NarayanaTransactionIntegration txIntegration = new NarayanaTransactionIntegration( transactionManager.getValue(), transactionSynchronizationRegistry.getValue(), jndiName );
+            dataSourceConfiguration.connectionPoolConfiguration( cp -> cp.transactionIntegration( txIntegration ) );
+        }
+
         try {
-            agroalDataSource = AgroalDataSource.from( dataSourceConfiguration );
+            agroalDataSource = AgroalDataSource.from( dataSourceConfiguration, new LoggingDataSourceListener() );
 
             ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor( jndiName );
             BinderService binderService = new BinderService( bindInfo.getBindName() );
@@ -82,61 +91,15 @@ public class DataSourceService implements Service<AgroalDataSource> {
 
             AgroalLogger.SERVICE_LOGGER.infof( "Started datasource '%s' bound to [%s]", dataSourceName, jndiName );
         } catch ( SQLException e ) {
+            agroalDataSource = null;
             throw new StartException( "Exception starting datasource " + dataSourceName, e );
         }
-
-        agroalDataSource.addListener( new AgroalDataSourceListener() {
-
-            @Override
-            public void beforeConnectionLeak(Connection connection) {
-                AgroalLogger.DATASOURCE_LOGGER.debugf( "Leak test on connection " + connection );
-            }
-
-            @Override
-            public void beforeConnectionReap(Connection connection) {
-                AgroalLogger.DATASOURCE_LOGGER.debugf( "Reap test on connection " + connection );
-            }
-
-            @Override
-            public void beforeConnectionValidation(Connection connection) {
-                AgroalLogger.DATASOURCE_LOGGER.debugf( "Validation test on connection " + connection );
-            }
-
-            @Override
-            public void onConnectionAcquire(Connection connection) {
-                AgroalLogger.DATASOURCE_LOGGER.debugf( "Acquire connection " + connection );
-            }
-
-            @Override
-            public void onConnectionCreation(Connection connection) {
-                AgroalLogger.DATASOURCE_LOGGER.infof( "Created connection " + connection );
-            }
-
-            @Override
-            public void onConnectionReap(Connection connection) {
-                AgroalLogger.DATASOURCE_LOGGER.debugf( "Closing idle connection " + connection );
-            }
-
-            @Override
-            public void onConnectionReturn(Connection connection) {
-                AgroalLogger.DATASOURCE_LOGGER.debugf( "Returning connection " + connection );
-            }
-
-            @Override
-            public void onConnectionDestroy(Connection connection) {
-                AgroalLogger.DATASOURCE_LOGGER.infof( "Destroyed connection " + connection );
-            }
-
-            @Override
-            public void onWarning(Throwable throwable) {
-                AgroalLogger.DATASOURCE_LOGGER.warnf( throwable.getMessage(), throwable );
-            }
-        } );
     }
 
     @Override
     public void stop(StopContext context) {
         agroalDataSource.close();
+        AgroalLogger.SERVICE_LOGGER.infof( "Stopped datasource '%s' bound to [%s]", dataSourceName, jndiName );
     }
 
     @Override
@@ -146,5 +109,13 @@ public class DataSourceService implements Service<AgroalDataSource> {
 
     public Injector<DriverService.DriverClass> getDriverServiceInjector() {
         return driverService;
+    }
+
+    public Injector<TransactionManager> getTransactionManagerInjector() {
+        return transactionManager;
+    }
+
+    public Injector<TransactionSynchronizationRegistry> getTransactionSynchronizationRegistryInjector() {
+        return transactionSynchronizationRegistry;
     }
 }

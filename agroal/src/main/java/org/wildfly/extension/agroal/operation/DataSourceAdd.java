@@ -21,9 +21,9 @@
  */
 package org.wildfly.extension.agroal.operation;
 
+import io.agroal.api.AgroalDataSource;
 import io.agroal.api.configuration.AgroalConnectionFactoryConfiguration.TransactionIsolation;
 import io.agroal.api.configuration.ConnectionValidator;
-import io.agroal.api.configuration.InterruptProtection;
 import io.agroal.api.configuration.supplier.AgroalConnectionFactoryConfigurationSupplier;
 import io.agroal.api.configuration.supplier.AgroalConnectionPoolConfigurationSupplier;
 import io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier;
@@ -34,12 +34,17 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.txn.service.TxnServices;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
+import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceName;
 import org.wildfly.extension.agroal.definition.DataSourceDefinition;
 import org.wildfly.extension.agroal.service.DataSourceService;
 import org.wildfly.extension.agroal.service.DriverService;
+
+import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofMinutes;
@@ -71,11 +76,9 @@ public class DataSourceAdd extends AbstractAddStepHandler {
         AgroalConnectionFactoryConfigurationSupplier configuration = new AgroalConnectionFactoryConfigurationSupplier();
 
         configuration.jdbcUrl( URL_ATTRIBUTE.resolveModelAttribute( context, model ).asString() );
-        configuration.initialSql( NEW_CONNECTION_SQL_ATTRIBUTE.resolveModelAttribute( context, model ).asString() );
 
-        if ( INTERRUPT_PROTECTION_ATTRIBUTE.resolveModelAttribute( context, model ).asBoolean( false ) ) {
-            // TODO: JBoss threads interrupt protection
-            configuration.interruptHandlingMode( InterruptProtection.none() );
+        if ( NEW_CONNECTION_SQL_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
+            configuration.initialSql( NEW_CONNECTION_SQL_ATTRIBUTE.resolveModelAttribute( context, model ).asString() );
         }
 
         if ( TRANSACTION_ISOLATION_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
@@ -104,16 +107,13 @@ public class DataSourceAdd extends AbstractAddStepHandler {
 
         configuration.maxSize( MAX_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() );
         configuration.minSize( MIN_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) );
+        configuration.initialSize( INITIAL_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) );
 
         configuration.leakTimeout( ofMillis( LEAK_DETECTION_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) ) );
         configuration.acquisitionTimeout( ofMillis( BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) ) );
         configuration.validationTimeout( ofMillis( BACKGROUND_VALIDATION_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) ) );
         configuration.reapTimeout( ofMinutes( IDLE_REMOVAL_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) ) );
-
         configuration.connectionValidator( ConnectionValidator.defaultValidator() );
-
-        // TODO: remove
-        //configuration.preFillMode( AgroalConnectionPoolConfiguration.PreFillMode.MAX );
 
         return configuration;
     }
@@ -141,8 +141,15 @@ public class DataSourceAdd extends AbstractAddStepHandler {
         DataSourceService dataSourceService = new DataSourceService( datasourceName, jndiName, dataSourceConfiguration );
         ServiceName dataSourceServiceName = DATASOURCE_SERVICE_PREFIX.append( datasourceName );
 
-        context.getServiceTarget().addService( dataSourceServiceName, dataSourceService )
-                .addDependency( driverServiceName, DriverService.DriverClass.class, dataSourceService.getDriverServiceInjector() )
-                .install();
+        ServiceBuilder<AgroalDataSource> serviceBuilder = context.getServiceTarget().addService( dataSourceServiceName, dataSourceService )
+                .addDependency( driverServiceName, DriverService.DriverClass.class, dataSourceService.getDriverServiceInjector() );
+
+        // Define dependencies for JTA DataSources
+        if ( DataSourceDefinition.JTA_ATTRIBUTE.resolveModelAttribute( context, model ).asBoolean() ) {
+            serviceBuilder.addDependency( TxnServices.JBOSS_TXN_TRANSACTION_MANAGER, TransactionManager.class, dataSourceService.getTransactionManagerInjector() );
+            serviceBuilder.addDependency( TxnServices.JBOSS_TXN_SYNCHRONIZATION_REGISTRY, TransactionSynchronizationRegistry.class, dataSourceService.getTransactionSynchronizationRegistryInjector() );
+        }
+
+        serviceBuilder.install();
     }
 }

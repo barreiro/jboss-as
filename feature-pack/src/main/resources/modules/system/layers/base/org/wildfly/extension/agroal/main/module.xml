@@ -37,8 +37,10 @@
 
     <dependencies>
         <module name="io.agroal"/>
+        <module name="javax.transaction.api"/>
         <module name="org.jboss.as.controller"/>
         <module name="org.jboss.as.naming"/>
+        <module name="org.jboss.as.transactions"/>
         <module name="org.jboss.logging"/>
         <module name="org.jboss.modules"/>
         <module name="org.jboss.msc"/>

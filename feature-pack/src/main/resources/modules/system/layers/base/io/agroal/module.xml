@@ -29,10 +29,13 @@
 
     <resources>
         <artifact name="${io.agroal:agroal-api}"/>
+        <artifact name="${io.agroal:agroal-narayana}"/>
         <artifact name="${io.agroal:agroal-pool}"/>
     </resources>
 
     <dependencies>
         <module name="javax.api"/>
+        <module name="javax.transaction.api"/>
+        <module name="org.jboss.jboss-transaction-spi"/>
     </dependencies>
 </module>
