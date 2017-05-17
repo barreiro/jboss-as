@@ -1,6 +1,6 @@
 <subsystem xmlns="urn:jboss:domain:agroal:1.0">
-    <datasource name="sample" jndi-name="java:jboss/datasources/ExampleDS" jta="true" connectable="true" statistics-enabled="true">
-        <connection-factory driver="h2" url="jdbc:h2:tcp://localhost:1701" transaction-isolation="SERIALIZABLE" interrupt-protection="true">
+    <datasource name="sample" jndi-name="java:jboss/datasources/ExampleDS" jta="false" connectable="true" statistics-enabled="true">
+        <connection-factory driver="h2" url="jdbc:h2:tcp://localhost:1701" transaction-isolation="SERIALIZABLE">
             <new-connection sql="SELECT 1"/>
             <security username="sa" password="sa" />
             <connection-properties>
@@ -18,8 +18,8 @@
         <connection-factory driver="h2" url="jdbc:h2:tcp://localhost:1701"/>
         <connection-pool max-size="30"/>
     </datasource>
-    <xa-datasource name="sample-xa" jndi-name="java:jboss/datasources/ExampleXADS" statistics-enabled="false">
-        <connection-factory driver="h2" url="jdbc:h2:tcp://localhost:1702" transaction-isolation="REPEATABLE_READ" interrupt-protection="true">
+    <xa-datasource name="sample-xa" jndi-name="java:jboss/datasources/ExampleXADS" statistics-enabled="true">
+        <connection-factory driver="h2" url="jdbc:h2:tcp://localhost:1702" transaction-isolation="REPEATABLE_READ">
             <new-connection sql="SELECT 1"/>
             <security username="sa" password="sa" />
             <connection-properties>
@@ -33,6 +33,6 @@
         </connection-pool>
     </xa-datasource>
     <drivers>
-        <driver name="h2" module="com.h2database.h2" slot="main" driver-class="org.h2.Driver" />
+        <driver name="h2" module="com.h2database.h2" slot="experimental" driver-class="org.h2.Driver" />
     </drivers>
 </subsystem>

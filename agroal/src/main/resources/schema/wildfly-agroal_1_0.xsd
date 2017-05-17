@@ -21,7 +21,7 @@
   ~ 2110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:jboss:domain:agroal:1.0"
-           xmlns="urn:jboss:domain:agroal:1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+           xmlns="urn:jboss:domain:agroal:1.0" elementFormDefault="qualified" version="1.0">
 
     <xs:element name="subsystem" type="subsystemType"/>
 
@@ -42,7 +42,7 @@
                     </xs:annotation>
                 </xs:element>
             </xs:choice>
-            <xs:element name="drivers" type="driversType" minOccurs="0" maxOccurs="1">
+            <xs:element name="drivers" type="driversType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation><![CDATA[[ List of available JDBC drivers ]]></xs:documentation>
                 </xs:annotation>
@@ -63,7 +63,7 @@
                 <xs:documentation><![CDATA[[ JNDI name for the datasource ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="statistics-enabled" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="statistics-enabled" type="xs:boolean" default="false">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ Enable statistics for this datasource ]]></xs:documentation>
             </xs:annotation>
@@ -85,12 +85,12 @@
                 </xs:annotation>
             </xs:element>
         </xs:all>
-        <xs:attribute name="jta" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="jta" type="xs:boolean" default="true">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ Enable JTA integration ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="connectable" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="connectable" type="xs:boolean" default="false">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ Enable CMR (Commit Markable Resource) functionality on this datasource ]]></xs:documentation>
             </xs:annotation>
@@ -146,14 +146,9 @@
                 <xs:documentation><![CDATA[[ JDBC driver connection URL (e.g. "jdbc:h2:tcp://localhost:1234") ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="transaction-isolation" type="transactionIsolationType" use="optional">
+        <xs:attribute name="transaction-isolation" type="transactionIsolationType">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ Set the java.sql.Connection transaction isolation level to use ]]></xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="interrupt-protection" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation><![CDATA[[ Enables protection against interrupts on network calls ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
@@ -237,17 +232,17 @@
                 <xs:documentation><![CDATA[[ Maximum number of connections in the pool ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="min-size" type="xs:nonNegativeInteger" use="optional">
+        <xs:attribute name="min-size" type="xs:nonNegativeInteger">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ Minimum number of connections the pool should hold ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="initial-size" type="xs:nonNegativeInteger" use="optional">
+        <xs:attribute name="initial-size" type="xs:nonNegativeInteger">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ Initial number of connections the pool should hold ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="blocking-timeout-millis" type="xs:nonNegativeInteger" use="optional">
+        <xs:attribute name="blocking-timeout-millis" type="xs:nonNegativeInteger">
             <xs:annotation>
                 <xs:documentation>
                     <![CDATA[[ Maximum time in milliseconds to block while waiting for a connection before throwing an exception ]]>
@@ -311,7 +306,7 @@
                 <xs:documentation><![CDATA[[ Name of module providing this driver ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="slot" type="xs:token" use="optional" default="main">
+        <xs:attribute name="slot" type="xs:token" default="main">
             <xs:annotation>
                 <xs:documentation><![CDATA[[ Version of the module to be used ]]></xs:documentation>
             </xs:annotation>

@@ -78,12 +78,6 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
             .setValidator( EnumValidator.create( AgroalConnectionFactoryConfiguration.TransactionIsolation.class, true, true ) )
             .build();
 
-    public static final SimpleAttributeDefinition INTERRUPT_PROTECTION_ATTRIBUTE = create( "interrupt-protection", ModelType.BOOLEAN )
-            .setAllowExpression( true )
-            .setRequired( false )
-            .setRestartAllServices()
-            .build();
-
     public static final SimpleAttributeDefinition NEW_CONNECTION_SQL_ATTRIBUTE = create( "new-connection-sql", ModelType.STRING )
             .setAttributeGroup( "new-connection" )
             .setAllowExpression( true )
@@ -116,7 +110,7 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
             .setRestartAllServices()
             .build();
 
-    public static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-factory", DRIVER_ATTRIBUTE, URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, INTERRUPT_PROTECTION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
+    public static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-factory", DRIVER_ATTRIBUTE, URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
             .setRestartAllServices()
             .build();
 
