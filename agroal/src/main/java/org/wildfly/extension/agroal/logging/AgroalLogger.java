@@ -25,16 +25,18 @@ package org.wildfly.extension.agroal.logging;
 import org.jboss.logging.Logger;
 import org.jboss.logging.annotations.MessageLogger;
 
+import static org.jboss.logging.Logger.getLogger;
+
 /**
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
 @MessageLogger(projectCode = "AGROAL", length = 4)
 public class AgroalLogger {
 
-    public static final Logger DRIVER_LOGGER = Logger.getLogger( "org.wildfly.extension.agroal.driver" );
+    public static final Logger DRIVER_LOGGER = getLogger( "org.wildfly.extension.agroal.driver" );
 
-    public static final Logger SERVICE_LOGGER = Logger.getLogger( "org.wildfly.extension.agroal.service" );
+    public static final Logger SERVICE_LOGGER = getLogger( "org.wildfly.extension.agroal.service" );
 
-    public static final Logger DATASOURCE_LOGGER = Logger.getLogger( "org.wildfly.extension.agroal.datasource" );
+    public static final Logger POOL_LOGGER = getLogger( "io.agroal.pool" );
 
 }

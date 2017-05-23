@@ -32,48 +32,54 @@ import java.sql.Connection;
  */
 public class LoggingDataSourceListener implements AgroalDataSourceListener {
 
+    private final String datasourceName;
+
+    public LoggingDataSourceListener(String name) {
+        this.datasourceName = name;
+    }
+
     @Override
     public void beforeConnectionLeak(Connection connection) {
-        AgroalLogger.DATASOURCE_LOGGER.debugv( "Leak test on connection {0}", connection );
+        AgroalLogger.POOL_LOGGER.debugv( "{0}: Leak test on connection {1}", datasourceName, connection );
     }
 
     @Override
     public void beforeConnectionReap(Connection connection) {
-        AgroalLogger.DATASOURCE_LOGGER.debugv( "Reap test on connection {0}", connection );
+        AgroalLogger.POOL_LOGGER.debugv( "{0}: Reap test on connection {1}", datasourceName, connection );
     }
 
     @Override
     public void beforeConnectionValidation(Connection connection) {
-        AgroalLogger.DATASOURCE_LOGGER.debugv( "Validation test on connection {0}", connection );
+        AgroalLogger.POOL_LOGGER.debugv( "{0}: Validation test on connection {1}", datasourceName, connection );
     }
 
     @Override
     public void onConnectionAcquire(Connection connection) {
-        AgroalLogger.DATASOURCE_LOGGER.debugv( "Acquire connection {0}", connection );
+        AgroalLogger.POOL_LOGGER.debugv( "{0}: Acquire connection {1}", datasourceName, connection );
     }
 
     @Override
     public void onConnectionCreation(Connection connection) {
-        AgroalLogger.DATASOURCE_LOGGER.infov( "Created connection {0}", connection );
+        AgroalLogger.POOL_LOGGER.debugv( "{0}: Created connection {1}", datasourceName, connection );
     }
 
     @Override
     public void onConnectionReap(Connection connection) {
-        AgroalLogger.DATASOURCE_LOGGER.debugv( "Closing idle connection {0}", connection );
+        AgroalLogger.POOL_LOGGER.debugv( "{0}: Closing idle connection {1}", datasourceName, connection );
     }
 
     @Override
     public void onConnectionReturn(Connection connection) {
-        AgroalLogger.DATASOURCE_LOGGER.debugv( "Returning connection {0}", connection );
+        AgroalLogger.POOL_LOGGER.debugv( "{0}: Returning connection {1}", datasourceName, connection );
     }
 
     @Override
     public void onConnectionDestroy(Connection connection) {
-        AgroalLogger.DATASOURCE_LOGGER.infov( "Destroyed connection {0}", connection );
+        AgroalLogger.POOL_LOGGER.debugv( "{0}: Destroyed connection {1}", datasourceName, connection );
     }
 
     @Override
     public void onWarning(Throwable throwable) {
-        AgroalLogger.DATASOURCE_LOGGER.warnv( throwable.getMessage(), throwable );
+        AgroalLogger.POOL_LOGGER.warnv( throwable, "{0}: {1}", datasourceName, throwable.getMessage() );
     }
 }

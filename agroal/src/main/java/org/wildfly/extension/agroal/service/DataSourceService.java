@@ -52,15 +52,17 @@ public class DataSourceService implements Service<AgroalDataSource> {
 
     private final String dataSourceName;
     private final String jndiName;
+    private final boolean connectable;
     private final AgroalDataSourceConfigurationSupplier dataSourceConfiguration;
     private final InjectedValue<DriverService.DriverClass> driverService = new InjectedValue<>();
     private final InjectedValue<TransactionManager> transactionManager = new InjectedValue<>();
     private final InjectedValue<TransactionSynchronizationRegistry> transactionSynchronizationRegistry = new InjectedValue<>();
     private AgroalDataSource agroalDataSource;
 
-    public DataSourceService(String dataSourceName, String jndiName, AgroalDataSourceConfigurationSupplier dataSourceConfiguration) {
+    public DataSourceService(String dataSourceName, String jndiName, boolean connectable, AgroalDataSourceConfigurationSupplier dataSourceConfiguration) {
         this.dataSourceName = dataSourceName;
         this.jndiName = jndiName;
+        this.connectable = connectable;
         this.dataSourceConfiguration = dataSourceConfiguration;
     }
 
@@ -74,12 +76,12 @@ public class DataSourceService implements Service<AgroalDataSource> {
         );
 
         if ( transactionManager.getOptionalValue() != null && transactionSynchronizationRegistry.getOptionalValue() != null ) {
-            NarayanaTransactionIntegration txIntegration = new NarayanaTransactionIntegration( transactionManager.getValue(), transactionSynchronizationRegistry.getValue(), jndiName );
+            NarayanaTransactionIntegration txIntegration = new NarayanaTransactionIntegration( transactionManager.getValue(), transactionSynchronizationRegistry.getValue(), jndiName, connectable );
             dataSourceConfiguration.connectionPoolConfiguration( cp -> cp.transactionIntegration( txIntegration ) );
         }
 
         try {
-            agroalDataSource = AgroalDataSource.from( dataSourceConfiguration, new LoggingDataSourceListener() );
+            agroalDataSource = AgroalDataSource.from( dataSourceConfiguration, new LoggingDataSourceListener( dataSourceName ) );
 
             ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor( jndiName );
             BinderService binderService = new BinderService( bindInfo.getBindName() );

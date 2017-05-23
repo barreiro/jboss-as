@@ -50,6 +50,7 @@ import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofMinutes;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.wildfly.extension.agroal.definition.AbstractDataSourceDefinition.*;
+import static org.wildfly.extension.agroal.definition.DataSourceDefinition.CONNECTABLE_ATTRIBUTE;
 
 /**
  * Handler responsible for adding a datasource resource to the model
@@ -134,11 +135,12 @@ public class DataSourceAdd extends AbstractAddStepHandler {
         dataSourceConfiguration.connectionPoolConfiguration( connectionPoolConfiguration );
 
         String jndiName = JNDI_NAME_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+        boolean connectable = CONNECTABLE_ATTRIBUTE.resolveModelAttribute( context, model ).asBoolean();
 
         String driverName = DRIVER_ATTRIBUTE.resolveModelAttribute( context, factoryModel ).asString();
         ServiceName driverServiceName = ServiceName.of( DriverAdd.DRIVER_SERVICE_PREFIX, driverName );
 
-        DataSourceService dataSourceService = new DataSourceService( datasourceName, jndiName, dataSourceConfiguration );
+        DataSourceService dataSourceService = new DataSourceService( datasourceName, jndiName, connectable, dataSourceConfiguration );
         ServiceName dataSourceServiceName = DATASOURCE_SERVICE_PREFIX.append( datasourceName );
 
         ServiceBuilder<AgroalDataSource> serviceBuilder = context.getServiceTarget().addService( dataSourceServiceName, dataSourceService )

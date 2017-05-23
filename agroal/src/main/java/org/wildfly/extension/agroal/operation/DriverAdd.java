@@ -68,7 +68,7 @@ public class DriverAdd extends AbstractAddStepHandler {
 
         String driverClassName = DRIVER_CLASS_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
         String moduleName = MODULE_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
-        String slotName = SLOT_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+        String slotName = SLOT_ATTRIBUTE.resolveModelAttribute( context, model ).asString( "main" );
 
         Class<? extends Driver> driverClass;
         try {
