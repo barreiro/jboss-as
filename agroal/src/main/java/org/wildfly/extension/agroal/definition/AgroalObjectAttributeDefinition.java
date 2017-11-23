@@ -231,7 +231,7 @@ public class AgroalObjectAttributeDefinition extends ObjectTypeAttributeDefiniti
                 for ( AttributeDefinition valueType : sortedAttrs ) {
                     if ( valueType.getAttributeGroup() == null && resourceModel.hasDefined( attribute.getName(), valueType.getName() ) ) {
                         ModelNode handler = resourceModel.get( attribute.getName() );
-                        valueType.getAttributeMarshaller().marshall( valueType, handler, marshallDefault, writer );
+                        valueType.getMarshaller().marshall( valueType, handler, marshallDefault, writer );
                     }
                 }
 
@@ -248,7 +248,7 @@ public class AgroalObjectAttributeDefinition extends ObjectTypeAttributeDefiniti
                     ModelNode handler = resourceModel.get( attribute.getName() );
                     for ( AttributeDefinition valueType : entry.getValue().values() ) {
                         if ( ATTRIBUTE_DEFINED.test( valueType ) ) {
-                            valueType.getAttributeMarshaller().marshall( valueType, handler, marshallDefault, writer );
+                            valueType.getMarshaller().marshall( valueType, handler, marshallDefault, writer );
                         }
                     }
                     writer.writeEndElement();

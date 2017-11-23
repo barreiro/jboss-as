@@ -68,6 +68,6 @@ public class AgroalExtension implements Extension {
         ManagementResourceRegistration registration = subsystem.registerSubsystemModel( AgroalSubsystemDefinition.INSTANCE );
         registration.registerOperationHandler( GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE );
 
-        subsystem.registerXMLElementWriter( AgroalSubsystemParser_1_0.INSTANCE );
+        subsystem.registerXMLElementWriter( () -> AgroalSubsystemParser_1_0.INSTANCE );
     }
 }

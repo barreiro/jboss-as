@@ -34,6 +34,8 @@ import org.jboss.as.controller.operations.validation.StringLengthValidator;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
+import java.util.EnumSet;
+
 import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 
 /**
@@ -75,7 +77,7 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
             .setAllowedValues( "NONE", "READ_UNCOMMITTED", "READ_COMMITTED", "REPEATABLE_READ", "SERIALIZABLE" )
             .setRequired( false )
             .setRestartAllServices()
-            .setValidator( EnumValidator.create( AgroalConnectionFactoryConfiguration.TransactionIsolation.class, true, true ) )
+            .setValidator( EnumValidator.create( AgroalConnectionFactoryConfiguration.TransactionIsolation.class, EnumSet.allOf( AgroalConnectionFactoryConfiguration.TransactionIsolation.class ) ) )
             .build();
 
     public static final SimpleAttributeDefinition NEW_CONNECTION_SQL_ATTRIBUTE = create( "new-connection-sql", ModelType.STRING )

@@ -81,7 +81,12 @@ public class DataSourceService implements Service<AgroalDataSource> {
         }
 
         try {
+            // Switch classloader to make the ServiceLoader in Agroal work -- TODO: should be removed when upgrading to agroal 0.4
+            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader( AgroalDataSource.class.getClassLoader() );
+
             agroalDataSource = AgroalDataSource.from( dataSourceConfiguration, new LoggingDataSourceListener( dataSourceName ) );
+            Thread.currentThread().setContextClassLoader( tccl );
 
             ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor( jndiName );
             BinderService binderService = new BinderService( bindInfo.getBindName() );
