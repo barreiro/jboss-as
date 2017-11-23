@@ -196,7 +196,9 @@
         <xs:sequence minOccurs="0" maxOccurs="unbounded">
             <xs:element name="property" type="connectionPropertyType">
                 <xs:annotation>
-                    <xs:documentation><![CDATA[[ Properties to be passed to the JDBC driver when creating a connection ]]></xs:documentation>
+                    <xs:documentation>
+                        <![CDATA[[ Properties to be passed to the JDBC driver when creating a connection ]]>
+                    </xs:documentation>
                 </xs:annotation>
             </xs:element>
         </xs:sequence>
@@ -242,11 +244,12 @@
                 <xs:documentation><![CDATA[[ Initial number of connections the pool should hold ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="blocking-timeout-millis" type="xs:nonNegativeInteger">
+        <xs:attribute name="blocking-timeout-millis" type="xs:nonNegativeInteger" default="0">
             <xs:annotation>
                 <xs:documentation>
                     <![CDATA[[ Maximum time in milliseconds to block while waiting for a connection before throwing an exception ]]>
                     <![CDATA[[ This will never throw an exception if creating a new connection takes an inordinately long period of time ]]>
+                    <![CDATA[[ Default is 0 meaning that a call will wait indefinitely ]]>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -257,7 +260,9 @@
     <xs:complexType name="backgroundValidationType">
         <xs:attribute name="millis" type="xs:nonNegativeInteger" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Time in milliseconds between background validation runs ]]></xs:documentation>
+                <xs:documentation>
+                    <![CDATA[[ Time in milliseconds between background validation runs ]]>
+                </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
@@ -265,7 +270,9 @@
     <xs:complexType name="leakDetectionType">
         <xs:attribute name="millis" type="xs:nonNegativeInteger" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Time in milliseconds a connection has to be held before a leak warning ]]></xs:documentation>
+                <xs:documentation>
+                    <![CDATA[[ Time in milliseconds a connection has to be held before a leak warning ]]>
+                </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
@@ -273,7 +280,9 @@
     <xs:complexType name="idleRemovalType">
         <xs:attribute name="minutes" type="xs:nonNegativeInteger" use="required">
             <xs:annotation>
-                <xs:documentation><![CDATA[[ Time in minutes a connection has to be idle before it can be removed ]]></xs:documentation>
+                <xs:documentation>
+                    <![CDATA[[ Time in minutes a connection has to be idle before it can be removed ]]>
+                </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>

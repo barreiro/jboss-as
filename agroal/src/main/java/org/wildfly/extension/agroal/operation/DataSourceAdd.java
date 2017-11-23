@@ -107,13 +107,13 @@ public class DataSourceAdd extends AbstractAddStepHandler {
         AgroalConnectionPoolConfigurationSupplier configuration = new AgroalConnectionPoolConfigurationSupplier();
 
         configuration.maxSize( MAX_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() );
-        configuration.minSize( MIN_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) );
-        configuration.initialSize( INITIAL_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) );
+        configuration.minSize( MIN_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() );
+        configuration.initialSize( INITIAL_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() );
 
-        configuration.leakTimeout( ofMillis( LEAK_DETECTION_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) ) );
-        configuration.acquisitionTimeout( ofMillis( BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) ) );
-        configuration.validationTimeout( ofMillis( BACKGROUND_VALIDATION_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) ) );
-        configuration.reapTimeout( ofMinutes( IDLE_REMOVAL_ATTRIBUTE.resolveModelAttribute( context, model ).asInt( 0 ) ) );
+        configuration.acquisitionTimeout( ofMillis( BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() ) );
+        configuration.leakTimeout( ofMillis( LEAK_DETECTION_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() ) );
+        configuration.validationTimeout( ofMillis( BACKGROUND_VALIDATION_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() ) );
+        configuration.reapTimeout( ofMinutes( IDLE_REMOVAL_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() ) );
         configuration.connectionValidator( ConnectionValidator.defaultValidator() );
 
         return configuration;

@@ -45,6 +45,18 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
  */
 public abstract class AbstractDataSourceDefinition extends PersistentResourceDefinition {
 
+    // Default values should be kept in sync with the schema
+    protected static final boolean STATISTICS_ENABLED_DEFAULT_VALUE = false;
+    protected static final boolean JTA_DEFAULT_VALUE = true;
+    protected static final boolean CONNECTABLE_DEFAULT_VALUE = false;
+
+    protected static final int MIN_SIZE_DEFAULT_VALUE = 0;
+    protected static final int INITIAL_SIZE_DEFAULT_VALUE = 0;
+    protected static final int BLOCKING_TIMEOUT_MILLIS_DEFAULT_VALUE = 0;
+    protected static final int BACKGROUND_VALIDATION_DEFAULT_VALUE = 0;
+    protected static final int LEAK_DETECTION_DEFAULT_VALUE = 0;
+    protected static final int IDLE_REMOVAL_DEFAULT_VALUE = 0;
+
     public static final SimpleAttributeDefinition JNDI_NAME_ATTRIBUTE = create( "jndi-name", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
@@ -53,7 +65,7 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
 
     public static final SimpleAttributeDefinition STATISTICS_ENABLED_ATTRIBUTE = create( "statistics-enabled", ModelType.BOOLEAN )
             .setAllowExpression( true )
-            .setDefaultValue( new ModelNode( false ) )
+            .setDefaultValue( new ModelNode( STATISTICS_ENABLED_DEFAULT_VALUE ) )
             .setRequired( false )
             .setRestartAllServices()
             .build();
@@ -125,18 +137,21 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
 
     public static final SimpleAttributeDefinition MIN_SIZE_ATTRIBUTE = create( "min-size", ModelType.INT )
             .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( MIN_SIZE_DEFAULT_VALUE ) )
             .setRequired( false )
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition INITIAL_SIZE_ATTRIBUTE = create( "initial-size", ModelType.INT )
             .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( INITIAL_SIZE_DEFAULT_VALUE ) )
             .setRequired( false )
             .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE = create( "blocking-timeout-millis", ModelType.INT )
             .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( BLOCKING_TIMEOUT_MILLIS_DEFAULT_VALUE ) )
             .setRequired( false )
             .setRestartAllServices()
             .build();
@@ -144,6 +159,7 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
     public static final SimpleAttributeDefinition BACKGROUND_VALIDATION_ATTRIBUTE = create( "background-validation-millis", ModelType.INT )
             .setAttributeGroup( "background-validation" )
             .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( BACKGROUND_VALIDATION_DEFAULT_VALUE ) )
             .setRequired( false )
             .setRestartAllServices()
             .setXmlName( "millis" )
@@ -152,6 +168,7 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
     public static final SimpleAttributeDefinition LEAK_DETECTION_ATTRIBUTE = create( "leak-detection-millis", ModelType.INT )
             .setAttributeGroup( "leak-detection" )
             .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( LEAK_DETECTION_DEFAULT_VALUE ) )
             .setRequired( false )
             .setRestartAllServices()
             .setXmlName( "millis" )
@@ -160,6 +177,7 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
     public static final SimpleAttributeDefinition IDLE_REMOVAL_ATTRIBUTE = create( "idle-removal-minutes", ModelType.INT )
             .setAttributeGroup( "idle-removal" )
             .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( IDLE_REMOVAL_DEFAULT_VALUE ) )
             .setRequired( false )
             .setRestartAllServices()
             .setXmlName( "minutes" )

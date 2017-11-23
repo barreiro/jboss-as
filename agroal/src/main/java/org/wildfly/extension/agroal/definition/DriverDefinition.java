@@ -25,6 +25,7 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
+import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.wildfly.extension.agroal.operation.DriverAdd;
 import org.wildfly.extension.agroal.operation.DriverRemove;
@@ -62,6 +63,7 @@ public class DriverDefinition extends PersistentResourceDefinition {
 
     public static final SimpleAttributeDefinition SLOT_ATTRIBUTE = create( "slot", ModelType.STRING )
             .setAllowExpression( true )
+            .setDefaultValue( new ModelNode( "main" ) )
             .setRequired( false )
             .setRestartAllServices()
             .setValidator( new StringLengthValidator( 1 ) )
