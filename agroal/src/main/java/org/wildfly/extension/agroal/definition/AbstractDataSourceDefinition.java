@@ -81,6 +81,7 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
     public static final SimpleAttributeDefinition URL_ATTRIBUTE = create( "url", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
+            .setRequired( false )
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 

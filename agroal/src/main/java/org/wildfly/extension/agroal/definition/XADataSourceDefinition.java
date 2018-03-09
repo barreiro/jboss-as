@@ -22,8 +22,8 @@
 package org.wildfly.extension.agroal.definition;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.wildfly.extension.agroal.operation.XaDataSourceAdd;
-import org.wildfly.extension.agroal.operation.XaDataSourceRemove;
+import org.wildfly.extension.agroal.operation.XADataSourceAdd;
+import org.wildfly.extension.agroal.operation.XADataSourceRemove;
 
 import java.util.Collection;
 
@@ -37,16 +37,16 @@ import static org.wildfly.extension.agroal.AgroalExtension.getResolver;
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class XaDataSourceDefinition extends AbstractDataSourceDefinition {
+public class XADataSourceDefinition extends AbstractDataSourceDefinition {
 
-    public static final XaDataSourceDefinition INSTANCE = new XaDataSourceDefinition();
+    public static final XADataSourceDefinition INSTANCE = new XADataSourceDefinition();
 
     private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JNDI_NAME_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE, CONNECTION_FACTORY_ATTRIBUTE, CONNECTION_POOL_ATTRIBUTE ) );
 
     // --- //
 
-    private XaDataSourceDefinition() {
-        super( pathElement( "xa-datasource" ), getResolver( "xa-datasource" ), XaDataSourceAdd.INSTANCE, XaDataSourceRemove.INSTANCE );
+    private XADataSourceDefinition() {
+        super( pathElement( "xa-datasource" ), getResolver( "xa-datasource" ), XADataSourceAdd.INSTANCE, XADataSourceRemove.INSTANCE );
     }
 
     @Override

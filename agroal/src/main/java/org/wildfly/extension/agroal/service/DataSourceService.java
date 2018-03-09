@@ -39,8 +39,11 @@ import org.jboss.msc.value.InjectedValue;
 import org.wildfly.extension.agroal.logging.AgroalLogger;
 import org.wildfly.extension.agroal.logging.LoggingDataSourceListener;
 
+import javax.sql.DataSource;
+import javax.sql.XADataSource;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
+import java.sql.Driver;
 import java.sql.SQLException;
 
 /**
@@ -53,40 +56,45 @@ public class DataSourceService implements Service<AgroalDataSource> {
     private final String dataSourceName;
     private final String jndiName;
     private final boolean connectable;
+    private final boolean xa;
     private final AgroalDataSourceConfigurationSupplier dataSourceConfiguration;
-    private final InjectedValue<DriverService.DriverClass> driverService = new InjectedValue<>();
+    private final InjectedValue<DriverService.ProviderClass> driverService = new InjectedValue<>();
     private final InjectedValue<TransactionManager> transactionManager = new InjectedValue<>();
     private final InjectedValue<TransactionSynchronizationRegistry> transactionSynchronizationRegistry = new InjectedValue<>();
     private AgroalDataSource agroalDataSource;
 
-    public DataSourceService(String dataSourceName, String jndiName, boolean connectable, AgroalDataSourceConfigurationSupplier dataSourceConfiguration) {
+    public DataSourceService(String dataSourceName, String jndiName, boolean connectable, boolean xa, AgroalDataSourceConfigurationSupplier dataSourceConfiguration) {
         this.dataSourceName = dataSourceName;
         this.jndiName = jndiName;
         this.connectable = connectable;
+        this.xa = xa;
         this.dataSourceConfiguration = dataSourceConfiguration;
     }
 
     @Override
     public void start(StartContext context) throws StartException {
-        dataSourceConfiguration.connectionPoolConfiguration( cp -> cp
-                .connectionFactoryConfiguration( cf -> cf
-                        .driverClassName( driverService.getValue().driverClassName() )
-                        .classLoaderProvider( driverService.getValue().driverClassloaderProvider() )
-                )
-        );
+        Class<?> providerClass = driverService.getValue().providerClass();
+        if ( xa ) {
+            if ( !XADataSource.class.isAssignableFrom( providerClass ) ) {
+                throw new StartException( "An xa-datasource requires a javax.sqlXADataSource as connection provider. Fix the connection-provider for the driver" );
+            }
+        } else {
+            if ( providerClass != null && !DataSource.class.isAssignableFrom( providerClass ) && !Driver.class.isAssignableFrom( providerClass ) ) {
+                throw new StartException( "Invalid connection provider. Either a java.sql.Driver or javax.sql.DataSource implementation is required. Fix the connection-provider for the driver" );
+            }
+        }
+
+        dataSourceConfiguration.connectionPoolConfiguration( cp -> cp.connectionFactoryConfiguration( cf -> cf.connectionProviderClass( providerClass ) ) );
 
         if ( transactionManager.getOptionalValue() != null && transactionSynchronizationRegistry.getOptionalValue() != null ) {
             NarayanaTransactionIntegration txIntegration = new NarayanaTransactionIntegration( transactionManager.getValue(), transactionSynchronizationRegistry.getValue(), jndiName, connectable );
             dataSourceConfiguration.connectionPoolConfiguration( cp -> cp.transactionIntegration( txIntegration ) );
+        } else if ( xa ) {
+            throw new StartException( "Could not start xa-datasource: transaction manager is missing" );
         }
 
         try {
-            // Switch classloader to make the ServiceLoader in Agroal work -- TODO: should be removed when upgrading to agroal 0.4
-            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-            Thread.currentThread().setContextClassLoader( AgroalDataSource.class.getClassLoader() );
-
             agroalDataSource = AgroalDataSource.from( dataSourceConfiguration, new LoggingDataSourceListener( dataSourceName ) );
-            Thread.currentThread().setContextClassLoader( tccl );
 
             ContextNames.BindInfo bindInfo = ContextNames.bindInfoFor( jndiName );
             BinderService binderService = new BinderService( bindInfo.getBindName() );
@@ -96,7 +104,7 @@ public class DataSourceService implements Service<AgroalDataSource> {
                     .addDependency( bindInfo.getParentContextServiceName(), ServiceBasedNamingStore.class, binderService.getNamingStoreInjector() )
                     .install();
 
-            AgroalLogger.SERVICE_LOGGER.infof( "Started datasource '%s' bound to [%s]", dataSourceName, jndiName );
+            AgroalLogger.SERVICE_LOGGER.infof( "Started %sdatasource '%s' bound to [%s]", xa ? "xa-" : "", dataSourceName, jndiName );
         } catch ( SQLException e ) {
             agroalDataSource = null;
             throw new StartException( "Exception starting datasource " + dataSourceName, e );
@@ -106,7 +114,7 @@ public class DataSourceService implements Service<AgroalDataSource> {
     @Override
     public void stop(StopContext context) {
         agroalDataSource.close();
-        AgroalLogger.SERVICE_LOGGER.infof( "Stopped datasource '%s' bound to [%s]", dataSourceName, jndiName );
+        AgroalLogger.SERVICE_LOGGER.infof( "Stopped %sdatasource '%s' bound to [%s]", xa ? "xa-" : "", dataSourceName, jndiName );
     }
 
     @Override
@@ -114,7 +122,7 @@ public class DataSourceService implements Service<AgroalDataSource> {
         return agroalDataSource;
     }
 
-    public Injector<DriverService.DriverClass> getDriverServiceInjector() {
+    public Injector<DriverService.ProviderClass> getDriverServiceInjector() {
         return driverService;
     }
 

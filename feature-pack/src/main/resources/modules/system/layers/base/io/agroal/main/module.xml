@@ -34,7 +34,7 @@
     </resources>
 
     <dependencies>
-        <module name="javax.api"/>
+        <module name="javax.sql.api"/>
         <module name="javax.transaction.api"/>
         <module name="org.jboss.jboss-transaction-spi"/>
     </dependencies>

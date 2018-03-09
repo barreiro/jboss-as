@@ -27,15 +27,15 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.dmr.ModelNode;
 
 /**
- * Handler responsible for removing a datasource resource from the model
+ * Handler responsible for removing a xa-datasource resource from the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class XaDataSourceRemove extends AbstractRemoveStepHandler {
+public class XADataSourceRemove extends AbstractRemoveStepHandler {
 
-    public static final XaDataSourceRemove INSTANCE = new XaDataSourceRemove();
+    public static final XADataSourceRemove INSTANCE = new XADataSourceRemove();
 
-    private XaDataSourceRemove() {
+    private XADataSourceRemove() {
     }
 
     @Override

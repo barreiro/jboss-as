@@ -49,12 +49,6 @@ public class DriverDefinition extends PersistentResourceDefinition {
 
     public static final String DRIVERS_ELEMENT_NAME = "drivers";
 
-    public static final SimpleAttributeDefinition DRIVER_CLASS_ATTRIBUTE = create( "driver-class", ModelType.STRING )
-            .setAllowExpression( true )
-            .setRestartAllServices()
-            .setValidator( new StringLengthValidator( 1 ) )
-            .build();
-
     public static final SimpleAttributeDefinition MODULE_ATTRIBUTE = create( "module", ModelType.STRING )
             .setAllowExpression( true )
             .setRestartAllServices()
@@ -69,7 +63,14 @@ public class DriverDefinition extends PersistentResourceDefinition {
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( DRIVER_CLASS_ATTRIBUTE, MODULE_ATTRIBUTE, SLOT_ATTRIBUTE ) );
+    public static final SimpleAttributeDefinition CLASS_ATTRIBUTE = create( "class", ModelType.STRING )
+            .setAllowExpression( true )
+            .setRequired( false )
+            .setRestartAllServices()
+            .setValidator( new StringLengthValidator( 1 ) )
+            .build();
+
+    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( MODULE_ATTRIBUTE, SLOT_ATTRIBUTE, CLASS_ATTRIBUTE ) );
 
     // --- //
 

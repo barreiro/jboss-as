@@ -34,10 +34,8 @@ import org.wildfly.extension.agroal.definition.DriverDefinition;
 import org.wildfly.extension.agroal.logging.AgroalLogger;
 import org.wildfly.extension.agroal.service.DriverService;
 
-import java.sql.Driver;
-
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.agroal.definition.DriverDefinition.DRIVER_CLASS_ATTRIBUTE;
+import static org.wildfly.extension.agroal.definition.DriverDefinition.CLASS_ATTRIBUTE;
 import static org.wildfly.extension.agroal.definition.DriverDefinition.MODULE_ATTRIBUTE;
 import static org.wildfly.extension.agroal.definition.DriverDefinition.SLOT_ATTRIBUTE;
 
@@ -55,6 +53,19 @@ public class DriverAdd extends AbstractAddStepHandler {
     private DriverAdd() {
     }
 
+    private static Class<?> loadClass(String driverName, String moduleName, String slotName, String className) throws OperationFailedException {
+        try {
+            Module module = Module.getCallerModuleLoader().loadModule( moduleName + ":" + slotName );
+            Class<?> providerClass = module.getClassLoader().loadClass( className );
+            AgroalLogger.DRIVER_LOGGER.debugf( "loaded module '%s:%s' for driver: %s", moduleName, slotName, driverName );
+            return providerClass;
+        } catch ( ModuleLoadException e ) {
+            throw new OperationFailedException( "failed to load module '" + moduleName + ":" + slotName + "'", e );
+        } catch ( ClassNotFoundException e ) {
+            throw new OperationFailedException( "failed to load class '" + className + "'", e );
+        }
+    }
+
     @Override
     protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
         for ( AttributeDefinition attributeDefinition : DriverDefinition.INSTANCE.getAttributes() ) {
@@ -65,26 +76,16 @@ public class DriverAdd extends AbstractAddStepHandler {
     @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         String driverName = PathAddress.pathAddress( operation.require( OP_ADDR ) ).getLastElement().getValue();
-
-        String driverClassName = DRIVER_CLASS_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
-        String moduleName = MODULE_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
-        String slotName = SLOT_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
-
-        Class<? extends Driver> driverClass;
-        try {
-            Module module = Module.getCallerModuleLoader().loadModule( moduleName + ":" + slotName );
-            driverClass = module.getClassLoader().loadClass( driverClassName ).asSubclass( Driver.class );
-            AgroalLogger.DRIVER_LOGGER.debugf( "loaded module '%s:%s' for driver: %s", moduleName, slotName, driverName );
-        } catch ( ModuleLoadException e ) {
-            throw new OperationFailedException( "failed to load module '" + moduleName + ":" + slotName + "'", e );
-        } catch ( ClassNotFoundException e ) {
-            throw new OperationFailedException( "failed to load class '" + driverClassName + "'", e );
-        } catch ( ClassCastException e ) {
-            throw new OperationFailedException( "class '" + driverClassName + "' is not a JDBC driver", e );
-        }
-
         ServiceName driverServiceName = ServiceName.of( DRIVER_SERVICE_PREFIX, driverName );
-        DriverService driverService = new DriverService( driverClass );
+        DriverService driverService = DriverService.DRIVER_WITH_NO_PROVIDER;
+
+        if ( CLASS_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
+            String className = CLASS_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+            String moduleName = MODULE_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+            String slotName = SLOT_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+
+            driverService = new DriverService( loadClass( driverName, moduleName, slotName, className ) );
+        }
         context.getServiceTarget().addService( driverServiceName, driverService ).install();
     }
 }

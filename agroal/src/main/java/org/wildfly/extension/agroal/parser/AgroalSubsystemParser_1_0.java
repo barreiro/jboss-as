@@ -26,7 +26,7 @@ import org.jboss.as.controller.PersistentResourceXMLParser;
 import org.wildfly.extension.agroal.definition.AgroalSubsystemDefinition;
 import org.wildfly.extension.agroal.definition.DataSourceDefinition;
 import org.wildfly.extension.agroal.definition.DriverDefinition;
-import org.wildfly.extension.agroal.definition.XaDataSourceDefinition;
+import org.wildfly.extension.agroal.definition.XADataSourceDefinition;
 
 import static org.jboss.as.controller.PersistentResourceXMLDescription.builder;
 
@@ -48,8 +48,8 @@ public class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
         DataSourceDefinition.INSTANCE.getAttributes().forEach( datasourceXMLBuilder::addAttribute );
         XML_DESCRIPTION.addChild( datasourceXMLBuilder );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder xaDatasourceXMLBuilder = builder( XaDataSourceDefinition.INSTANCE.getPathElement() );
-        XaDataSourceDefinition.INSTANCE.getAttributes().forEach( xaDatasourceXMLBuilder::addAttribute );
+        PersistentResourceXMLDescription.PersistentResourceXMLBuilder xaDatasourceXMLBuilder = builder( XADataSourceDefinition.INSTANCE.getPathElement() );
+        XADataSourceDefinition.INSTANCE.getAttributes().forEach( xaDatasourceXMLBuilder::addAttribute );
         XML_DESCRIPTION.addChild( xaDatasourceXMLBuilder );
 
         PersistentResourceXMLDescription.PersistentResourceXMLBuilder driverXMLBuilder = builder( DriverDefinition.INSTANCE.getPathElement() );

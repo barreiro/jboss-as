@@ -21,25 +21,24 @@
  */
 package org.wildfly.extension.agroal.service;
 
-import io.agroal.api.configuration.ClassLoaderProvider;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
-
-import java.sql.Driver;
 
 /**
  * Defines an extension to provide DataSources based on the Agroal project
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DriverService implements Service<DriverService.DriverClass> {
+public class DriverService implements Service<DriverService.ProviderClass> {
 
-    private final DriverClass driverClass;
+    public static final DriverService DRIVER_WITH_NO_PROVIDER = new DriverService( null );
 
-    public DriverService(Class<? extends Driver> driverClass) {
-        this.driverClass = new DriverClass( driverClass );
+    private final ProviderClass providerClass;
+
+    public DriverService(Class<?> providerClass) {
+        this.providerClass = new ProviderClass( providerClass );
     }
 
     @Override
@@ -51,24 +50,20 @@ public class DriverService implements Service<DriverService.DriverClass> {
     }
 
     @Override
-    public DriverClass getValue() throws IllegalStateException, IllegalArgumentException {
-        return driverClass;
+    public ProviderClass getValue() throws IllegalStateException, IllegalArgumentException {
+        return providerClass;
     }
 
-    public static final class DriverClass {
+    public static final class ProviderClass {
 
-        private final Class<? extends Driver> driverClass;
+        private final Class<?> providerClass;
 
-        private DriverClass(Class<? extends Driver> driverClass) {
-            this.driverClass = driverClass;
+        private ProviderClass(Class<?> providerClass) {
+            this.providerClass = providerClass;
         }
 
-        public String driverClassName() {
-            return driverClass.getName();
-        }
-
-        public ClassLoaderProvider driverClassloaderProvider() {
-            return s -> driverClass.getClassLoader();
+        public Class<?> providerClass() {
+            return providerClass;
         }
     }
 }

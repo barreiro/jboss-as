@@ -22,7 +22,7 @@
 package org.wildfly.extension.agroal.operation;
 
 import io.agroal.api.AgroalDataSource;
-import io.agroal.api.configuration.AgroalConnectionFactoryConfiguration.TransactionIsolation;
+import io.agroal.api.configuration.AgroalConnectionFactoryConfiguration;
 import io.agroal.api.configuration.supplier.AgroalConnectionFactoryConfigurationSupplier;
 import io.agroal.api.configuration.supplier.AgroalConnectionPoolConfigurationSupplier;
 import io.agroal.api.configuration.supplier.AgroalDataSourceConfigurationSupplier;
@@ -38,7 +38,7 @@ import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.Property;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceName;
-import org.wildfly.extension.agroal.definition.DataSourceDefinition;
+import org.wildfly.extension.agroal.definition.XADataSourceDefinition;
 import org.wildfly.extension.agroal.service.DataSourceService;
 import org.wildfly.extension.agroal.service.DriverService;
 
@@ -49,21 +49,27 @@ import static io.agroal.api.configuration.AgroalConnectionPoolConfiguration.Conn
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofMinutes;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
-import static org.wildfly.extension.agroal.definition.AbstractDataSourceDefinition.*;
-import static org.wildfly.extension.agroal.definition.DataSourceDefinition.CONNECTABLE_ATTRIBUTE;
+import static org.wildfly.extension.agroal.definition.XADataSourceDefinition.*;
 
 /**
- * Handler responsible for adding a datasource resource to the model
+ * Handler responsible for adding a xa-datasource resource to the model
  *
  * @author <a href="lbarreiro@redhat.com">Luis Barreiro</a>
  */
-public class DataSourceAdd extends AbstractAddStepHandler {
+public class XADataSourceAdd extends AbstractAddStepHandler {
 
-    public static final DataSourceAdd INSTANCE = new DataSourceAdd();
+    public static final XADataSourceAdd INSTANCE = new XADataSourceAdd();
 
-    public static final ServiceName DATASOURCE_SERVICE_PREFIX = ServiceName.of( "wildfly", "agroal", "datasource" );
+    public static final ServiceName XADATASOURCE_SERVICE_PREFIX = ServiceName.of( "wildfly", "agroal", "xa-datasource" );
 
-    private DataSourceAdd() {
+    private XADataSourceAdd() {
+    }
+
+    @Override
+    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
+        for ( AttributeDefinition attributeDefinition : XADataSourceDefinition.INSTANCE.getAttributes() ) {
+            attributeDefinition.validateAndSet( operation, model );
+        }
     }
 
     private static AgroalConnectionFactoryConfigurationSupplier connectionFactoryConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
@@ -78,7 +84,7 @@ public class DataSourceAdd extends AbstractAddStepHandler {
         }
 
         if ( TRANSACTION_ISOLATION_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
-            TransactionIsolation transactionIsolation = TransactionIsolation.valueOf( TRANSACTION_ISOLATION_ATTRIBUTE.resolveModelAttribute( context, model ).asString() );
+            AgroalConnectionFactoryConfiguration.TransactionIsolation transactionIsolation = AgroalConnectionFactoryConfiguration.TransactionIsolation.valueOf( TRANSACTION_ISOLATION_ATTRIBUTE.resolveModelAttribute( context, model ).asString() );
             configuration.jdbcTransactionIsolation( transactionIsolation );
         }
 
@@ -94,7 +100,6 @@ public class DataSourceAdd extends AbstractAddStepHandler {
         if ( SECURITY_PASSWORD_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
             configuration.credential( new SimplePassword( SECURITY_PASSWORD_ATTRIBUTE.resolveModelAttribute( context, model ).asString() ) );
         }
-
         return configuration;
     }
 
@@ -115,13 +120,6 @@ public class DataSourceAdd extends AbstractAddStepHandler {
     }
 
     @Override
-    protected void populateModel(ModelNode operation, ModelNode model) throws OperationFailedException {
-        for ( AttributeDefinition attributeDefinition : DataSourceDefinition.INSTANCE.getAttributes() ) {
-            attributeDefinition.validateAndSet( operation, model );
-        }
-    }
-
-    @Override
     protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         String datasourceName = PathAddress.pathAddress( operation.require( OP_ADDR ) ).getLastElement().getValue();
 
@@ -136,22 +134,19 @@ public class DataSourceAdd extends AbstractAddStepHandler {
         dataSourceConfiguration.connectionPoolConfiguration( connectionPoolConfiguration );
 
         String jndiName = JNDI_NAME_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
-        boolean connectable = CONNECTABLE_ATTRIBUTE.resolveModelAttribute( context, model ).asBoolean();
 
         String driverName = DRIVER_ATTRIBUTE.resolveModelAttribute( context, factoryModel ).asString();
         ServiceName driverServiceName = ServiceName.of( DriverAdd.DRIVER_SERVICE_PREFIX, driverName );
 
-        DataSourceService dataSourceService = new DataSourceService( datasourceName, jndiName, connectable, false, dataSourceConfiguration );
-        ServiceName dataSourceServiceName = DATASOURCE_SERVICE_PREFIX.append( datasourceName );
+        DataSourceService dataSourceService = new DataSourceService( datasourceName, jndiName, false, true, dataSourceConfiguration );
+        ServiceName dataSourceServiceName = XADATASOURCE_SERVICE_PREFIX.append( datasourceName );
 
         ServiceBuilder<AgroalDataSource> serviceBuilder = context.getServiceTarget().addService( dataSourceServiceName, dataSourceService );
         serviceBuilder.addDependency( driverServiceName, DriverService.ProviderClass.class, dataSourceService.getDriverServiceInjector() );
 
-        // Define dependencies for JTA DataSources
-        if ( DataSourceDefinition.JTA_ATTRIBUTE.resolveModelAttribute( context, model ).asBoolean() ) {
-            serviceBuilder.addDependency( TxnServices.JBOSS_TXN_TRANSACTION_MANAGER, TransactionManager.class, dataSourceService.getTransactionManagerInjector() );
-            serviceBuilder.addDependency( TxnServices.JBOSS_TXN_SYNCHRONIZATION_REGISTRY, TransactionSynchronizationRegistry.class, dataSourceService.getTransactionSynchronizationRegistryInjector() );
-        }
+        // Define JTA dependencies (required for XA)
+        serviceBuilder.addDependency( TxnServices.JBOSS_TXN_TRANSACTION_MANAGER, TransactionManager.class, dataSourceService.getTransactionManagerInjector() );
+        serviceBuilder.addDependency( TxnServices.JBOSS_TXN_SYNCHRONIZATION_REGISTRY, TransactionSynchronizationRegistry.class, dataSourceService.getTransactionSynchronizationRegistryInjector() );
 
         serviceBuilder.install();
     }
