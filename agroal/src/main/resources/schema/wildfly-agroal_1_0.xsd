@@ -310,11 +310,6 @@
                 <xs:documentation><![CDATA[ Name of module providing this driver ]]></xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="slot" type="xs:token" default="main">
-            <xs:annotation>
-                <xs:documentation><![CDATA[ Version of the module to be used ]]></xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
         <xs:attribute name="class" type="xs:token">
             <xs:annotation>
                 <xs:documentation>

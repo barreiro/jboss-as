@@ -37,7 +37,6 @@ import org.wildfly.extension.agroal.service.DriverService;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.wildfly.extension.agroal.definition.DriverDefinition.CLASS_ATTRIBUTE;
 import static org.wildfly.extension.agroal.definition.DriverDefinition.MODULE_ATTRIBUTE;
-import static org.wildfly.extension.agroal.definition.DriverDefinition.SLOT_ATTRIBUTE;
 
 /**
  * Handler responsible for adding a driver resource to the model
@@ -53,14 +52,14 @@ public class DriverAdd extends AbstractAddStepHandler {
     private DriverAdd() {
     }
 
-    private static Class<?> loadClass(String driverName, String moduleName, String slotName, String className) throws OperationFailedException {
+    private static Class<?> loadClass(String driverName, String moduleName, String className) throws OperationFailedException {
         try {
-            Module module = Module.getCallerModuleLoader().loadModule( moduleName + ":" + slotName );
+            Module module = Module.getCallerModuleLoader().loadModule( moduleName );
             Class<?> providerClass = module.getClassLoader().loadClass( className );
-            AgroalLogger.DRIVER_LOGGER.debugf( "loaded module '%s:%s' for driver: %s", moduleName, slotName, driverName );
+            AgroalLogger.DRIVER_LOGGER.debugf( "loaded module '%s' for driver: %s", moduleName, driverName );
             return providerClass;
         } catch ( ModuleLoadException e ) {
-            throw new OperationFailedException( "failed to load module '" + moduleName + ":" + slotName + "'", e );
+            throw new OperationFailedException( "failed to load module '" + moduleName + "'", e );
         } catch ( ClassNotFoundException e ) {
             throw new OperationFailedException( "failed to load class '" + className + "'", e );
         }
@@ -80,11 +79,10 @@ public class DriverAdd extends AbstractAddStepHandler {
         DriverService driverService = DriverService.DRIVER_WITH_NO_PROVIDER;
 
         if ( CLASS_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
-            String className = CLASS_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
             String moduleName = MODULE_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
-            String slotName = SLOT_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
+            String className = CLASS_ATTRIBUTE.resolveModelAttribute( context, model ).asString();
 
-            driverService = new DriverService( loadClass( driverName, moduleName, slotName, className ) );
+            driverService = new DriverService( loadClass( driverName, moduleName, className ) );
         }
         context.getServiceTarget().addService( driverServiceName, driverService ).install();
     }

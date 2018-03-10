@@ -25,7 +25,6 @@ import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
-import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.wildfly.extension.agroal.operation.DriverAdd;
 import org.wildfly.extension.agroal.operation.DriverRemove;
@@ -55,14 +54,6 @@ public class DriverDefinition extends PersistentResourceDefinition {
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    public static final SimpleAttributeDefinition SLOT_ATTRIBUTE = create( "slot", ModelType.STRING )
-            .setAllowExpression( true )
-            .setDefaultValue( new ModelNode( "main" ) )
-            .setRequired( false )
-            .setRestartAllServices()
-            .setValidator( new StringLengthValidator( 1 ) )
-            .build();
-
     public static final SimpleAttributeDefinition CLASS_ATTRIBUTE = create( "class", ModelType.STRING )
             .setAllowExpression( true )
             .setRequired( false )
@@ -70,7 +61,7 @@ public class DriverDefinition extends PersistentResourceDefinition {
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
-    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( MODULE_ATTRIBUTE, SLOT_ATTRIBUTE, CLASS_ATTRIBUTE ) );
+    private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( MODULE_ATTRIBUTE, CLASS_ATTRIBUTE ) );
 
     // --- //
 

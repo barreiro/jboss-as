@@ -33,7 +33,7 @@
         </connection-pool>
     </xa-datasource>
     <drivers>
-        <driver name="h2" module="com.h2database.h2" slot="experimental" class="org.h2.Driver"/>
-        <driver name="h2-xa" module="com.h2database.h2" slot="stable" class="org.h2.jdbcx.JdbcDataSource"/>
+        <driver name="h2" module="com.h2database.h2" class="org.h2.Driver"/>
+        <driver name="h2-xa" module="com.h2database.h2" class="org.h2.jdbcx.JdbcDataSource"/>
     </drivers>
 </subsystem>
