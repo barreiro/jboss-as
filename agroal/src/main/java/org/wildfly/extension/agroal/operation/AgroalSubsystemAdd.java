@@ -22,8 +22,15 @@
 package org.wildfly.extension.agroal.operation;
 
 import org.jboss.as.controller.AbstractBoottimeAddStepHandler;
+import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.server.AbstractDeploymentChainStep;
+import org.jboss.as.server.DeploymentProcessorTarget;
+import org.jboss.as.server.deployment.Phase;
 import org.jboss.dmr.ModelNode;
+import org.wildfly.extension.agroal.AgroalExtension;
+import org.wildfly.extension.agroal.deployment.DataSourceDefinitionAnnotationProcessor;
+import org.wildfly.extension.agroal.logging.AgroalLogger;
 
 /**
  * Handler responsible for adding the subsystem resource to the model
@@ -35,6 +42,16 @@ public class AgroalSubsystemAdd extends AbstractBoottimeAddStepHandler {
     public static final AgroalSubsystemAdd INSTANCE = new AgroalSubsystemAdd();
 
     private AgroalSubsystemAdd() {
+    }
+
+    @Override
+    protected void performBoottime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
+        context.addStep( new AbstractDeploymentChainStep() {
+            public void execute(DeploymentProcessorTarget processorTarget) {
+                AgroalLogger.SERVICE_LOGGER.infof( "Adding deployment processor for DataSourceDefinition annotation" );
+                processorTarget.addDeploymentProcessor( AgroalExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_RESOURCE_DEF_ANNOTATION_DATA_SOURCE, new DataSourceDefinitionAnnotationProcessor() );
+            }
+        }, OperationContext.Stage.RUNTIME );
     }
 
     @Override

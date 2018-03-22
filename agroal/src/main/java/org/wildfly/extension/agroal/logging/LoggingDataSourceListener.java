@@ -79,6 +79,11 @@ public class LoggingDataSourceListener implements AgroalDataSourceListener {
     }
 
     @Override
+    public void onWarning(String warning) {
+        AgroalLogger.POOL_LOGGER.warnv( "{0}: {1}", datasourceName, warning );
+    }
+
+    @Override
     public void onWarning(Throwable throwable) {
         AgroalLogger.POOL_LOGGER.warnv( throwable, "{0}: {1}", datasourceName, throwable.getMessage() );
     }
