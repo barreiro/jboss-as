@@ -30,6 +30,7 @@ import org.jboss.as.server.deployment.Phase;
 import org.jboss.dmr.ModelNode;
 import org.wildfly.extension.agroal.AgroalExtension;
 import org.wildfly.extension.agroal.deployment.DataSourceDefinitionAnnotationProcessor;
+import org.wildfly.extension.agroal.deployment.DataSourceDefinitionDescriptorProcessor;
 import org.wildfly.extension.agroal.logging.AgroalLogger;
 
 /**
@@ -48,8 +49,9 @@ public class AgroalSubsystemAdd extends AbstractBoottimeAddStepHandler {
     protected void performBoottime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
         context.addStep( new AbstractDeploymentChainStep() {
             public void execute(DeploymentProcessorTarget processorTarget) {
-                AgroalLogger.SERVICE_LOGGER.infof( "Adding deployment processor for DataSourceDefinition annotation" );
+                AgroalLogger.SERVICE_LOGGER.infof( "Adding deployment processors for DataSourceDefinition annotation and resource-ref entries" );
                 processorTarget.addDeploymentProcessor( AgroalExtension.SUBSYSTEM_NAME, Phase.PARSE, Phase.PARSE_RESOURCE_DEF_ANNOTATION_DATA_SOURCE, new DataSourceDefinitionAnnotationProcessor() );
+                processorTarget.addDeploymentProcessor( AgroalExtension.SUBSYSTEM_NAME, Phase.POST_MODULE, Phase.POST_MODULE_RESOURCE_DEF_XML_DATA_SOURCE, new DataSourceDefinitionDescriptorProcessor() );
             }
         }, OperationContext.Stage.RUNTIME );
     }
