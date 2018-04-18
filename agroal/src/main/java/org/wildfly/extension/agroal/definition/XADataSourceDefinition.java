@@ -22,8 +22,7 @@
 package org.wildfly.extension.agroal.definition;
 
 import org.jboss.as.controller.AttributeDefinition;
-import org.wildfly.extension.agroal.operation.XADataSourceAdd;
-import org.wildfly.extension.agroal.operation.XADataSourceRemove;
+import org.wildfly.extension.agroal.operation.XADataSourceOperations;
 
 import java.util.Collection;
 
@@ -46,7 +45,7 @@ public class XADataSourceDefinition extends AbstractDataSourceDefinition {
     // --- //
 
     private XADataSourceDefinition() {
-        super( pathElement( "xa-datasource" ), getResolver( "xa-datasource" ), XADataSourceAdd.INSTANCE, XADataSourceRemove.INSTANCE );
+        super( pathElement( "xa-datasource" ), getResolver( "xa-datasource" ), XADataSourceOperations.ADD_OPERATION, XADataSourceOperations.REMOVE_OPERATION );
     }
 
     @Override

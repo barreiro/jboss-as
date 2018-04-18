@@ -23,11 +23,9 @@ package org.wildfly.extension.agroal.definition;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
-import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
-import org.wildfly.extension.agroal.operation.DataSourceAdd;
-import org.wildfly.extension.agroal.operation.DataSourceRemove;
+import org.wildfly.extension.agroal.operation.DataSourceOperations;
 
 import java.util.Collection;
 
@@ -49,15 +47,15 @@ public class DataSourceDefinition extends AbstractDataSourceDefinition {
     public static final SimpleAttributeDefinition JTA_ATTRIBUTE = create( "jta", ModelType.BOOLEAN )
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( JTA_DEFAULT_VALUE ) )
-            .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
             .setRequired( false )
+            .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition CONNECTABLE_ATTRIBUTE = create( "connectable", ModelType.BOOLEAN )
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( CONNECTABLE_DEFAULT_VALUE ) )
-            .setFlags( AttributeAccess.Flag.RESTART_ALL_SERVICES )
             .setRequired( false )
+            .setRestartAllServices()
             .build();
 
     private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( JTA_ATTRIBUTE, CONNECTABLE_ATTRIBUTE, JNDI_NAME_ATTRIBUTE, STATISTICS_ENABLED_ATTRIBUTE, CONNECTION_FACTORY_ATTRIBUTE, CONNECTION_POOL_ATTRIBUTE ) );
@@ -65,7 +63,7 @@ public class DataSourceDefinition extends AbstractDataSourceDefinition {
     // --- //
 
     private DataSourceDefinition() {
-        super( pathElement( "datasource" ), getResolver( "datasource" ), DataSourceAdd.INSTANCE, DataSourceRemove.INSTANCE );
+        super( pathElement( "datasource" ), getResolver( "datasource" ), DataSourceOperations.ADD_OPERATION, DataSourceOperations.REMOVE_OPERATION );
     }
 
     @Override

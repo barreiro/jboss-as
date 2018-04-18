@@ -23,11 +23,12 @@ package org.wildfly.extension.agroal.definition;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.PersistentResourceDefinition;
+import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
+import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelType;
-import org.wildfly.extension.agroal.operation.DriverAdd;
-import org.wildfly.extension.agroal.operation.DriverRemove;
+import org.wildfly.extension.agroal.operation.DriverOperations;
 
 import java.util.Collection;
 
@@ -61,16 +62,27 @@ public class DriverDefinition extends PersistentResourceDefinition {
             .setValidator( new StringLengthValidator( 1 ) )
             .build();
 
+    public static final PrimitiveListAttributeDefinition CLASS_INFO = PrimitiveListAttributeDefinition.Builder.of( "class-info", ModelType.LIST )
+            .setRequired( false )
+            .setStorageRuntime()
+            .build();
+
     private static final Collection<AttributeDefinition> ATTRIBUTES = unmodifiableList( asList( MODULE_ATTRIBUTE, CLASS_ATTRIBUTE ) );
 
     // --- //
 
     private DriverDefinition() {
-        super( pathElement( "driver" ), getResolver( "driver" ), DriverAdd.INSTANCE, DriverRemove.INSTANCE );
+        super( pathElement( "driver" ), getResolver( "driver" ), DriverOperations.ADD_OPERATION, DriverOperations.REMOVE_OPERATION );
     }
 
     @Override
     public Collection<AttributeDefinition> getAttributes() {
         return ATTRIBUTES;
+    }
+
+    @Override
+    public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
+        super.registerAttributes( resourceRegistration );
+        resourceRegistration.registerReadOnlyAttribute( CLASS_INFO, DriverOperations.INFO_OPERATION );
     }
 }

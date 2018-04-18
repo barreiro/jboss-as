@@ -22,17 +22,25 @@
 package org.wildfly.extension.agroal.definition;
 
 import io.agroal.api.configuration.AgroalConnectionFactoryConfiguration;
+import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ObjectTypeAttributeDefinition;
+import org.jboss.as.controller.OperationDefinition;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
+import org.jboss.as.controller.PrimitiveListAttributeDefinition;
 import org.jboss.as.controller.PropertiesAttributeDefinition;
+import org.jboss.as.controller.ReloadRequiredWriteAttributeHandler;
 import org.jboss.as.controller.SimpleAttributeDefinition;
+import org.jboss.as.controller.SimpleOperationDefinitionBuilder;
 import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.operations.validation.EnumValidator;
 import org.jboss.as.controller.operations.validation.StringLengthValidator;
+import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
+import org.wildfly.extension.agroal.AgroalExtension;
+import org.wildfly.extension.agroal.operation.AbstractDataSourceOperations;
 
 import java.util.EnumSet;
 
@@ -46,16 +54,16 @@ import static org.jboss.as.controller.SimpleAttributeDefinitionBuilder.create;
 public abstract class AbstractDataSourceDefinition extends PersistentResourceDefinition {
 
     // Default values should be kept in sync with the schema
-    protected static final boolean STATISTICS_ENABLED_DEFAULT_VALUE = false;
-    protected static final boolean JTA_DEFAULT_VALUE = true;
-    protected static final boolean CONNECTABLE_DEFAULT_VALUE = false;
+    public static final boolean STATISTICS_ENABLED_DEFAULT_VALUE = false;
+    public static final boolean JTA_DEFAULT_VALUE = true;
+    public static final boolean CONNECTABLE_DEFAULT_VALUE = false;
 
-    protected static final int MIN_SIZE_DEFAULT_VALUE = 0;
-    protected static final int INITIAL_SIZE_DEFAULT_VALUE = 0;
-    protected static final int BLOCKING_TIMEOUT_MILLIS_DEFAULT_VALUE = 0;
-    protected static final int BACKGROUND_VALIDATION_DEFAULT_VALUE = 0;
-    protected static final int LEAK_DETECTION_DEFAULT_VALUE = 0;
-    protected static final int IDLE_REMOVAL_DEFAULT_VALUE = 0;
+    public static final int MIN_SIZE_DEFAULT_VALUE = 0;
+    public static final int INITIAL_SIZE_DEFAULT_VALUE = 0;
+    public static final int BLOCKING_TIMEOUT_MILLIS_DEFAULT_VALUE = 0;
+    public static final int BACKGROUND_VALIDATION_DEFAULT_VALUE = 0;
+    public static final int LEAK_DETECTION_DEFAULT_VALUE = 0;
+    public static final int IDLE_REMOVAL_DEFAULT_VALUE = 0;
 
     public static final SimpleAttributeDefinition JNDI_NAME_ATTRIBUTE = create( "jndi-name", ModelType.STRING )
             .setAllowExpression( true )
@@ -67,7 +75,6 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( STATISTICS_ENABLED_DEFAULT_VALUE ) )
             .setRequired( false )
-            .setRestartAllServices()
             .build();
 
     // --- connection-factory attributes //
@@ -133,14 +140,12 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
 
     public static final SimpleAttributeDefinition MAX_SIZE_ATTRIBUTE = create( "max-size", ModelType.INT )
             .setAllowExpression( true )
-            .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition MIN_SIZE_ATTRIBUTE = create( "min-size", ModelType.INT )
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( MIN_SIZE_DEFAULT_VALUE ) )
             .setRequired( false )
-            .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition INITIAL_SIZE_ATTRIBUTE = create( "initial-size", ModelType.INT )
@@ -154,7 +159,6 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
             .setAllowExpression( true )
             .setDefaultValue( new ModelNode( BLOCKING_TIMEOUT_MILLIS_DEFAULT_VALUE ) )
             .setRequired( false )
-            .setRestartAllServices()
             .build();
 
     public static final SimpleAttributeDefinition BACKGROUND_VALIDATION_ATTRIBUTE = create( "background-validation-millis", ModelType.INT )
@@ -185,12 +189,61 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
             .build();
 
     public static final ObjectTypeAttributeDefinition CONNECTION_POOL_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-pool", MAX_SIZE_ATTRIBUTE, MIN_SIZE_ATTRIBUTE, INITIAL_SIZE_ATTRIBUTE, BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE, BACKGROUND_VALIDATION_ATTRIBUTE, LEAK_DETECTION_ATTRIBUTE, IDLE_REMOVAL_ATTRIBUTE )
-            .setRestartAllServices()
+            .build();
+
+    // --- Operations //
+
+    public static final OperationDefinition FLUSH_ALL = new SimpleOperationDefinitionBuilder( "flush-all", AgroalExtension.getResolver() ).build();
+
+    public static final OperationDefinition FLUSH_GRACEFUL = new SimpleOperationDefinitionBuilder( "flush-graceful", AgroalExtension.getResolver() ).build();
+
+    public static final OperationDefinition FLUSH_INVALID = new SimpleOperationDefinitionBuilder( "flush-invalid", AgroalExtension.getResolver() ).build();
+
+    public static final OperationDefinition FLUSH_IDLE = new SimpleOperationDefinitionBuilder( "flush-idle", AgroalExtension.getResolver() ).build();
+
+    public static final OperationDefinition STATISTICS_RESET = new SimpleOperationDefinitionBuilder( "statistics-reset", AgroalExtension.getResolver() ).build();
+
+    // --- Runtime attributes //
+
+    public static final PrimitiveListAttributeDefinition STATISTICS = PrimitiveListAttributeDefinition.Builder.of( "statistics", ModelType.LIST )
+            .setRequired( false )
+            .setStorageRuntime()
             .build();
 
     // --- //
 
     protected AbstractDataSourceDefinition(PathElement pathElement, ResourceDescriptionResolver descriptionResolver, OperationStepHandler addHandler, OperationStepHandler removeHandler) {
         super( pathElement, descriptionResolver, addHandler, removeHandler );
+    }
+
+    @Override
+    public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
+        ReloadRequiredWriteAttributeHandler handler = new ReloadRequiredWriteAttributeHandler( getAttributes() );
+        for ( AttributeDefinition attributeDefinition : getAttributes() ) {
+            OperationStepHandler writeHandler = handler;
+
+            if ( attributeDefinition == STATISTICS_ENABLED_ATTRIBUTE ) {
+                writeHandler = AbstractDataSourceOperations.STATISTICS_ENABLED_WRITE_OPERATION;
+            }
+
+            if ( attributeDefinition == CONNECTION_POOL_ATTRIBUTE ) {
+                writeHandler = AbstractDataSourceOperations.CONNECTION_POOL_WRITE_OPERATION;
+            }
+
+            resourceRegistration.registerReadWriteAttribute( attributeDefinition, null, writeHandler );
+        }
+
+        // Runtime attributes
+        resourceRegistration.registerReadOnlyAttribute( STATISTICS, AbstractDataSourceOperations.STATISTICS_GET_OPERATION );
+    }
+
+    @Override
+    public void registerOperations(ManagementResourceRegistration resourceRegistration) {
+        super.registerOperations( resourceRegistration );
+        resourceRegistration.registerOperationHandler( STATISTICS_RESET, AbstractDataSourceOperations.STATISTICS_RESET_OPERATION );
+        resourceRegistration.registerOperationHandler( FLUSH_ALL, AbstractDataSourceOperations.FLUSH_ALL_OPERATION );
+        resourceRegistration.registerOperationHandler( FLUSH_GRACEFUL, AbstractDataSourceOperations.FLUSH_GRACEFUL_OPERATION );
+        resourceRegistration.registerOperationHandler( FLUSH_INVALID, AbstractDataSourceOperations.FLUSH_INVALID_OPERATION );
+        resourceRegistration.registerOperationHandler( FLUSH_IDLE, AbstractDataSourceOperations.FLUSH_IDLE_OPERATION );
     }
 }
