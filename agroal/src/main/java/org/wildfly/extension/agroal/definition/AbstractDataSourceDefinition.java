@@ -132,7 +132,9 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
             .setRestartAllServices()
             .build();
 
-    public static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-factory", DRIVER_ATTRIBUTE, URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
+    public static final ObjectTypeAttributeDefinition CONNECTION_FACTORY_ATTRIBUTE = ObjectTypeAttributeDefinition.create( "connection-factory", DRIVER_ATTRIBUTE, URL_ATTRIBUTE, TRANSACTION_ISOLATION_ATTRIBUTE, NEW_CONNECTION_SQL_ATTRIBUTE, SECURITY_USERNAME_ATTRIBUTE, SECURITY_PASSWORD_ATTRIBUTE, CONNECTION_PROPERTIES_ATTRIBUTE )
+            .setAttributeMarshaller( AgroalObjectAttribute.MARSHALLER )
+            .setAttributeParser( AgroalObjectAttribute.PARSER )
             .setRestartAllServices()
             .build();
 
@@ -188,7 +190,9 @@ public abstract class AbstractDataSourceDefinition extends PersistentResourceDef
             .setXmlName( "minutes" )
             .build();
 
-    public static final ObjectTypeAttributeDefinition CONNECTION_POOL_ATTRIBUTE = AgroalObjectAttributeDefinition.groupSupport( "connection-pool", MAX_SIZE_ATTRIBUTE, MIN_SIZE_ATTRIBUTE, INITIAL_SIZE_ATTRIBUTE, BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE, BACKGROUND_VALIDATION_ATTRIBUTE, LEAK_DETECTION_ATTRIBUTE, IDLE_REMOVAL_ATTRIBUTE )
+    public static final ObjectTypeAttributeDefinition CONNECTION_POOL_ATTRIBUTE = ObjectTypeAttributeDefinition.create( "connection-pool", MAX_SIZE_ATTRIBUTE, MIN_SIZE_ATTRIBUTE, INITIAL_SIZE_ATTRIBUTE, BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE, BACKGROUND_VALIDATION_ATTRIBUTE, LEAK_DETECTION_ATTRIBUTE, IDLE_REMOVAL_ATTRIBUTE )
+            .setAttributeMarshaller( AgroalObjectAttribute.MARSHALLER )
+            .setAttributeParser( AgroalObjectAttribute.PARSER )
             .build();
 
     // --- Operations //

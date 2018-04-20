@@ -22,6 +22,7 @@
 package org.wildfly.extension.agroal.parser;
 
 import org.jboss.as.controller.PersistentResourceXMLDescription;
+import org.jboss.as.controller.PersistentResourceXMLDescription.PersistentResourceXMLBuilder;
 import org.jboss.as.controller.PersistentResourceXMLParser;
 import org.wildfly.extension.agroal.definition.AgroalSubsystemDefinition;
 import org.wildfly.extension.agroal.definition.DataSourceDefinition;
@@ -39,23 +40,25 @@ public class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
 
     public static final AgroalSubsystemParser_1_0 INSTANCE = new AgroalSubsystemParser_1_0();
 
-    private static final PersistentResourceXMLDescription.PersistentResourceXMLBuilder XML_DESCRIPTION;
+    private static final PersistentResourceXMLDescription XML_DESCRIPTION;
 
     static {
-        XML_DESCRIPTION = builder( AgroalSubsystemDefinition.INSTANCE.getPathElement(), Namespace.AGROAL_1_0.getUriString() );
+        PersistentResourceXMLBuilder subsystemXMLBuilder = builder( AgroalSubsystemDefinition.INSTANCE.getPathElement(), Namespace.AGROAL_1_0.getUriString() );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder datasourceXMLBuilder = builder( DataSourceDefinition.INSTANCE.getPathElement() );
+        PersistentResourceXMLBuilder datasourceXMLBuilder = builder( DataSourceDefinition.INSTANCE.getPathElement() );
         DataSourceDefinition.INSTANCE.getAttributes().forEach( datasourceXMLBuilder::addAttribute );
-        XML_DESCRIPTION.addChild( datasourceXMLBuilder );
+        subsystemXMLBuilder.addChild( datasourceXMLBuilder );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder xaDatasourceXMLBuilder = builder( XADataSourceDefinition.INSTANCE.getPathElement() );
+        PersistentResourceXMLBuilder xaDatasourceXMLBuilder = builder( XADataSourceDefinition.INSTANCE.getPathElement() );
         XADataSourceDefinition.INSTANCE.getAttributes().forEach( xaDatasourceXMLBuilder::addAttribute );
-        XML_DESCRIPTION.addChild( xaDatasourceXMLBuilder );
+        subsystemXMLBuilder.addChild( xaDatasourceXMLBuilder );
 
-        PersistentResourceXMLDescription.PersistentResourceXMLBuilder driverXMLBuilder = builder( DriverDefinition.INSTANCE.getPathElement() );
+        PersistentResourceXMLBuilder driverXMLBuilder = builder( DriverDefinition.INSTANCE.getPathElement() );
         driverXMLBuilder.setXmlWrapperElement( DriverDefinition.DRIVERS_ELEMENT_NAME );
         DriverDefinition.INSTANCE.getAttributes().forEach( driverXMLBuilder::addAttribute );
-        XML_DESCRIPTION.addChild( driverXMLBuilder );
+        subsystemXMLBuilder.addChild( driverXMLBuilder );
+
+        XML_DESCRIPTION = subsystemXMLBuilder.build();
     }
 
     private AgroalSubsystemParser_1_0() {
@@ -63,6 +66,6 @@ public class AgroalSubsystemParser_1_0 extends PersistentResourceXMLParser {
 
     @Override
     public PersistentResourceXMLDescription getParserDescription() {
-        return XML_DESCRIPTION.build();
+        return XML_DESCRIPTION;
     }
 }

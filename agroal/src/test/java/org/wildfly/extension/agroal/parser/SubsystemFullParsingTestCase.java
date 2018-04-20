@@ -61,6 +61,8 @@ public class SubsystemFullParsingTestCase extends AbstractSubsystemTest {
         System.out.println( model );
         System.out.println( services.getPersistedSubsystemXml() );
 
-        createKernelServicesBuilder( MANAGEMENT ).setSubsystemXml( services.getPersistedSubsystemXml() ).build().readWholeModel();
+        ModelNode marshaledModel = createKernelServicesBuilder( MANAGEMENT ).setSubsystemXml( services.getPersistedSubsystemXml() ).build().readWholeModel();
+
+        Assert.assertEquals( model, marshaledModel );
     }
 }
