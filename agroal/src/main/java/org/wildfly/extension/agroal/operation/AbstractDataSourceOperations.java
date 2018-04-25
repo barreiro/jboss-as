@@ -23,13 +23,19 @@ package org.wildfly.extension.agroal.operation;
 
 import io.agroal.api.AgroalDataSource;
 import io.agroal.api.AgroalDataSourceMetrics;
+import io.agroal.api.configuration.AgroalConnectionFactoryConfiguration;
 import io.agroal.api.configuration.AgroalConnectionPoolConfiguration;
+import io.agroal.api.configuration.supplier.AgroalConnectionFactoryConfigurationSupplier;
+import io.agroal.api.configuration.supplier.AgroalConnectionPoolConfigurationSupplier;
+import io.agroal.api.security.NamePrincipal;
+import io.agroal.api.security.SimplePassword;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.dmr.ModelNode;
+import org.jboss.dmr.Property;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceRegistry;
 import org.wildfly.extension.agroal.definition.AbstractDataSourceDefinition;
@@ -37,6 +43,11 @@ import org.wildfly.extension.agroal.logging.AgroalLogger;
 import org.wildfly.extension.agroal.service.DataSourceService;
 
 import java.time.Duration;
+
+import static io.agroal.api.configuration.AgroalConnectionPoolConfiguration.ConnectionValidator.defaultValidator;
+import static java.time.Duration.ofMillis;
+import static java.time.Duration.ofMinutes;
+import static org.wildfly.extension.agroal.definition.AbstractDataSourceDefinition.*;
 
 /**
  * Operations common to XA and non-XA DataSources
@@ -62,6 +73,54 @@ public class AbstractDataSourceOperations {
     public static final OperationStepHandler STATISTICS_GET_OPERATION = new StatisticsGetOperation();
 
     public static final OperationStepHandler STATISTICS_RESET_OPERATION = new StatisticsResetOperation();
+
+    // --- //
+    protected static AgroalConnectionFactoryConfigurationSupplier connectionFactoryConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
+        AgroalConnectionFactoryConfigurationSupplier configuration = new AgroalConnectionFactoryConfigurationSupplier();
+
+        if ( URL_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
+            configuration.jdbcUrl( URL_ATTRIBUTE.resolveModelAttribute( context, model ).asString() );
+        }
+
+        if ( NEW_CONNECTION_SQL_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
+            configuration.initialSql( NEW_CONNECTION_SQL_ATTRIBUTE.resolveModelAttribute( context, model ).asString() );
+        }
+
+        if ( TRANSACTION_ISOLATION_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
+            AgroalConnectionFactoryConfiguration.TransactionIsolation transactionIsolation = AgroalConnectionFactoryConfiguration.TransactionIsolation.valueOf( TRANSACTION_ISOLATION_ATTRIBUTE.resolveModelAttribute( context, model ).asString() );
+            configuration.jdbcTransactionIsolation( transactionIsolation );
+        }
+
+        if ( CONNECTION_PROPERTIES_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
+            for ( Property jdbcProperty : CONNECTION_PROPERTIES_ATTRIBUTE.resolveModelAttribute( context, model ).asPropertyList() ) {
+                configuration.jdbcProperty( jdbcProperty.getName(), jdbcProperty.getValue().asString() );
+            }
+        }
+
+        if ( SECURITY_USERNAME_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
+            configuration.principal( new NamePrincipal( SECURITY_USERNAME_ATTRIBUTE.resolveModelAttribute( context, model ).asString() ) );
+        }
+        if ( SECURITY_PASSWORD_ATTRIBUTE.resolveModelAttribute( context, model ).isDefined() ) {
+            configuration.credential( new SimplePassword( SECURITY_PASSWORD_ATTRIBUTE.resolveModelAttribute( context, model ).asString() ) );
+        }
+        return configuration;
+    }
+
+    protected static AgroalConnectionPoolConfigurationSupplier connectionPoolConfiguration(OperationContext context, ModelNode model) throws OperationFailedException {
+        AgroalConnectionPoolConfigurationSupplier configuration = new AgroalConnectionPoolConfigurationSupplier();
+
+        configuration.maxSize( MAX_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() );
+        configuration.minSize( MIN_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() );
+        configuration.initialSize( INITIAL_SIZE_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() );
+
+        configuration.acquisitionTimeout( ofMillis( BLOCKING_TIMEOUT_MILLIS_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() ) );
+        configuration.leakTimeout( ofMillis( LEAK_DETECTION_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() ) );
+        configuration.validationTimeout( ofMillis( BACKGROUND_VALIDATION_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() ) );
+        configuration.reapTimeout( ofMinutes( IDLE_REMOVAL_ATTRIBUTE.resolveModelAttribute( context, model ).asInt() ) );
+        configuration.connectionValidator( defaultValidator() );
+
+        return configuration;
+    }
 
     // --- //
 
