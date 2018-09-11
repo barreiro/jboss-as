@@ -38,6 +38,7 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.ImmediateValue;
 import org.jboss.msc.value.InjectedValue;
+import org.jboss.tm.XAResourceRecoveryRegistry;
 import org.wildfly.common.function.ExceptionSupplier;
 import org.wildfly.extension.datasources.agroal.logging.AgroalLogger;
 import org.wildfly.extension.datasources.agroal.logging.LoggingDataSourceListener;
@@ -91,6 +92,10 @@ public class DataSourceService implements Service<AgroalDataSource>, Supplier<Ag
     private InjectedValue<AuthenticationContext> authenticationContextInjector = new InjectedValue<>();
     private InjectedValue<ExceptionSupplier<CredentialSource, Exception>> credentialSourceSupplierInjector = new InjectedValue<>();
 
+    private InjectedValue<XAResourceRecoveryRegistry> recoveryRegistryInjector = new InjectedValue<>();
+    private InjectedValue<AuthenticationContext> recoveryAuthenticationContextInjector = new InjectedValue<>();
+    private InjectedValue<ExceptionSupplier<CredentialSource, Exception>> recoveryCredentialSourceSupplierInjector = new InjectedValue<>();
+
     public DataSourceService(String dataSourceName, String jndiName, boolean jta, boolean connectable, boolean xa, AgroalDataSourceConfigurationSupplier dataSourceConfiguration) {
         this.dataSourceName = dataSourceName;
         this.jndiName = jndiName;
@@ -122,7 +127,7 @@ public class DataSourceService implements Service<AgroalDataSource>, Supplier<Ag
             if (transactionManager == null || transactionSynchronizationRegistry == null) {
                 throw AgroalLogger.SERVICE_LOGGER.missingTransactionManager();
             }
-            TransactionIntegration txIntegration = new NarayanaTransactionIntegration(transactionManager, transactionSynchronizationRegistry, jndiName, connectable);
+            TransactionIntegration txIntegration = new NarayanaTransactionIntegration(transactionManager, transactionSynchronizationRegistry, jndiName, connectable, recoveryRegistryInjector.getOptionalValue());
             dataSourceConfiguration.connectionPoolConfiguration().transactionIntegration(txIntegration);
         }
 
@@ -138,7 +143,7 @@ public class DataSourceService implements Service<AgroalDataSource>, Supplier<Ag
                 CredentialCallback credentialCallback = new CredentialCallback(GSSKerberosCredential.class);
 
                 AuthenticationConfiguration authenticationConfiguration = AUTH_CONFIG_CLIENT.getAuthenticationConfiguration(targetURI, authenticationContext, -1, "jdbc", "jboss");
-                AUTH_CONFIG_CLIENT.getCallbackHandler(authenticationConfiguration).handle(new Callback[] { nameCallback , passwordCallback, credentialCallback});
+                AUTH_CONFIG_CLIENT.getCallbackHandler(authenticationConfiguration).handle(new Callback[] { nameCallback, passwordCallback, credentialCallback });
 
                 // if a GSSKerberosCredential was found, add the enclosed GSSCredential and KerberosTicket to the private set in the Subject.
                 if (credentialCallback.getCredential() != null) {
@@ -170,6 +175,55 @@ public class DataSourceService implements Service<AgroalDataSource>, Supplier<Ag
             try {
                 String password = new String(credentialSourceExceptionExceptionSupplier.get().getCredential(PasswordCredential.class).getPassword(ClearPassword.class).getPassword());
                 dataSourceConfiguration.connectionPoolConfiguration().connectionFactoryConfiguration().credential(new SimplePassword(password));
+            } catch (Exception e) {
+                throw AgroalLogger.SERVICE_LOGGER.invalidCredentialSourceSupplier(e, dataSourceName);
+            }
+        }
+
+        AuthenticationContext recoveryAuthenticationContext = recoveryAuthenticationContextInjector.getOptionalValue();
+
+        if (recoveryAuthenticationContext != null) {
+            try {
+                // Probably some other thing should be used as URI. Using jndiName for consistency with the datasources subsystem (simplicity as a bonus)
+                URI targetURI = new URI(jndiName);
+
+                NameCallback nameCallback = new NameCallback("Username: ");
+                PasswordCallback passwordCallback = new PasswordCallback("Password: ", false);
+                CredentialCallback credentialCallback = new CredentialCallback(GSSKerberosCredential.class);
+
+                AuthenticationConfiguration authenticationConfiguration = AUTH_CONFIG_CLIENT.getAuthenticationConfiguration(targetURI, recoveryAuthenticationContext, -1, "jdbc", "jboss");
+                AUTH_CONFIG_CLIENT.getCallbackHandler(authenticationConfiguration).handle(new Callback[] { nameCallback, passwordCallback, credentialCallback });
+
+                // if a GSSKerberosCredential was found, add the enclosed GSSCredential and KerberosTicket to the private set in the Subject.
+                if (credentialCallback.getCredential() != null) {
+                    GSSKerberosCredential kerberosCredential = credentialCallback.getCredential(GSSKerberosCredential.class);
+
+                    // use the GSSName to build a kerberos principal
+                    dataSourceConfiguration.connectionPoolConfiguration().connectionFactoryConfiguration().recoveryPrincipal(new NamePrincipal(kerberosCredential.getGssCredential().getName().toString()));
+
+                    dataSourceConfiguration.connectionPoolConfiguration().connectionFactoryConfiguration().recoveryCredential(kerberosCredential.getKerberosTicket());
+                    dataSourceConfiguration.connectionPoolConfiguration().connectionFactoryConfiguration().recoveryCredential(kerberosCredential.getGssCredential());
+                }
+
+                // use the name / password from the callbacks
+                if (nameCallback.getName() != null) {
+                    dataSourceConfiguration.connectionPoolConfiguration().connectionFactoryConfiguration().recoveryPrincipal(new NamePrincipal(nameCallback.getName()));
+                }
+                if (passwordCallback.getPassword() != null) {
+                    dataSourceConfiguration.connectionPoolConfiguration().connectionFactoryConfiguration().recoveryCredential(new SimplePassword(new String(passwordCallback.getPassword())));
+                }
+
+            } catch (URISyntaxException | UnsupportedCallbackException | IOException | GSSException e) {
+                throw AgroalLogger.SERVICE_LOGGER.invalidAuthentication(e, dataSourceName);
+            }
+        }
+
+        ExceptionSupplier<CredentialSource, Exception> recoveryCredentialSourceExceptionExceptionSupplier = recoveryCredentialSourceSupplierInjector.getOptionalValue();
+
+        if (recoveryAuthenticationContext != null) {
+            try {
+                String password = new String(recoveryCredentialSourceExceptionExceptionSupplier.get().getCredential(PasswordCredential.class).getPassword(ClearPassword.class).getPassword());
+                dataSourceConfiguration.connectionPoolConfiguration().connectionFactoryConfiguration().recoveryCredential(new SimplePassword(password));
             } catch (Exception e) {
                 throw AgroalLogger.SERVICE_LOGGER.invalidCredentialSourceSupplier(e, dataSourceName);
             }
@@ -233,5 +287,17 @@ public class DataSourceService implements Service<AgroalDataSource>, Supplier<Ag
 
     public InjectedValue<ExceptionSupplier<CredentialSource, Exception>> getCredentialSourceSupplierInjector() {
         return credentialSourceSupplierInjector;
+    }
+
+    public InjectedValue<AuthenticationContext> getRecoveryAuthenticationContextInjector() {
+        return recoveryAuthenticationContextInjector;
+    }
+
+    public InjectedValue<ExceptionSupplier<CredentialSource, Exception>> getRecoveryCredentialSourceSupplierInjector() {
+        return recoveryCredentialSourceSupplierInjector;
+    }
+
+    public InjectedValue<XAResourceRecoveryRegistry> getRecoveryRegistryInjector() {
+        return recoveryRegistryInjector;
     }
 }
